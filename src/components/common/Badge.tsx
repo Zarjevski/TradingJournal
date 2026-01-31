@@ -1,14 +1,31 @@
 import React from "react";
+import { motion } from "framer-motion";
 
-const Badge = ({ text, color }: { text: string; color?: string }) => {
+interface BadgeProps {
+  text: string;
+  color?: string;
+  variant?: "solid" | "outline";
+}
+
+const Badge: React.FC<BadgeProps> = ({
+  text,
+  color = "bg-gray-500",
+  variant = "solid",
+}) => {
+  const baseStyles = "w-fit rounded-full px-2 py-0.5 text-[10px] font-semibold flex items-center justify-center transition-all duration-200";
+  
+  const variantStyles =
+    variant === "outline"
+      ? `border-2 ${color.replace("bg-", "border-")} ${color.replace("bg-", "text-")} bg-transparent`
+      : `${color} text-white shadow-sm`;
+
   return (
-    <div
-      className={`${
-        color ? color : "bg-gray-500"
-      } border w-fit text-gray-100 rounded md:mx-2 md:py-1 text-xs md:px-2 flex items-center font-bold xs:mx-1 xs:p-1`}
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className={`${baseStyles} ${variantStyles}`}
     >
-      {text}
-    </div>
+      {text.toUpperCase()}
+    </motion.div>
   );
 };
 

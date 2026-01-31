@@ -8,6 +8,7 @@ interface TextAreaProps {
   cols: number;
   rows: number;
   onChange?: (e: any) => void;
+  value?: string;
 }
 
 const TextArea: React.FC<TextAreaProps> = ({
@@ -16,18 +17,22 @@ const TextArea: React.FC<TextAreaProps> = ({
   id,
   cols,
   rows,
-  onChange
+  onChange,
+  value
 }) => {
   const { colorMode } = useColorMode();
   return (
     <textarea
-      className={`w-full border p-2 ${
-        colorMode === "light" ? "bg-white" : "bg-black"
-      }`}
+      className={`w-full border-2 rounded-lg p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+        colorMode === "light"
+          ? "bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900"
+          : "bg-gray-800 border-gray-600 focus:border-blue-500 focus:ring-blue-500 text-white"
+      } placeholder:${colorMode === "light" ? "text-gray-400" : "text-gray-500"}`}
       placeholder={placeholder}
-      name=""
-      id=""
+      name={name}
+      id={id}
       onChange={onChange}
+      value={value}
       cols={cols}
       rows={rows}
     ></textarea>

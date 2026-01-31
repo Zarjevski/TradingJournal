@@ -21,6 +21,7 @@ model User {
   firstName String
   lastName  String
   photoURL  String?
+  status    String?    @default("NEUTRAL") // "NEUTRAL" | "BEARISH" | "BULLISH"
   createdAt DateTime   @default(now())
   exchanges Exchange[]
   trades    Trade[]
@@ -28,6 +29,10 @@ model User {
   accounts  Account[]
   sessions  Session[]
   comments  Comment[]
+  teamMembers     TeamMember[]
+  teamMessages   TeamMessage[]
+  teamTradeShares TeamTradeShare[]
+  ownedTeams      Team[]          @relation("TeamOwner")
 
   @@map("users")
 }
@@ -98,7 +103,9 @@ model Trade {
   size         Int
   reason       String
   result       Int
+  imageURL     String?
   comments     Comment[]
+  teamShares   TeamTradeShare[]
 
   @@map("trades")
 }
@@ -121,4 +128,96 @@ model Comment {
   tradeID String @db.ObjectId
   owner   User   @relation(fields: [ownerID], references: [id])
   ownerID String @db.ObjectId
+}
+
+// Team models
+
+model Team {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  imageURL    String?
+  ownerID     String        @db.ObjectId
+  owner       User          @relation("TeamOwner", fields: [ownerID], references: [id])
+  createdAt   DateTime      @default(now())
+  members     TeamMember[]
+  invites     TeamInvite[]
+  messages    TeamMessage[]
+  tradeShares TeamTradeShare[]
+  rooms       TeamRoom[]
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamID    String   @db.ObjectId
+  userID    String   @db.ObjectId
+  role      String   // "OWNER" | "ADMIN" | "MEMBER"
+  createdAt DateTime @default(now())
+  team Team @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  @@unique([teamID, userID])
+  @@map("team_members")
+}
+
+model TeamInvite {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamID     String   @db.ObjectId
+  email      String
+  role       String   // "ADMIN" | "MEMBER"
+  token      String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  team Team @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  @@map("team_invites")
+}
+
+model TeamMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamID    String   @db.ObjectId
+  senderID  String   @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+  team   Team @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [senderID], references: [id], onDelete: Cascade)
+  @@map("team_messages")
+}
+
+model TeamTradeShare {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamID    String   @db.ObjectId
+  tradeID   String   @db.ObjectId
+  sharedBy  String   @db.ObjectId
+  note      String?
+  createdAt DateTime @default(now())
+  team   Team  @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  trade  Trade @relation(fields: [tradeID], references: [id], onDelete: Cascade)
+  sharer User  @relation(fields: [sharedBy], references: [id], onDelete: Cascade)
+  @@unique([teamID, tradeID])
+  @@map("team_trade_shares")
+}
+
+model TeamRoom {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamID    String   @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+  team Team @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  signals   RoomSignal[]
+  @@map("team_rooms")
+}
+
+model RoomSignal {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomID    String   @db.ObjectId
+  senderID  String   @db.ObjectId
+  targetID  String?  // null = broadcast
+  type      String   // "offer" | "answer" | "ice" | "join" | "leave"
+  payload   Json
+  createdAt DateTime @default(now())
+  room TeamRoom @relation(fields: [roomID], references: [id], onDelete: Cascade)
+
+  @@map("room_signals")
 }

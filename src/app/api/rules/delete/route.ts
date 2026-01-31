@@ -1,26 +1,56 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
-    const currentUser = await getCurrentUser();
-    const { id: userID }: any = currentUser;
-    const { id: RuleId }: any = body;
-    if (userID && RuleId) {
-      const remove = await prisma.rule.delete({
-        where: { id: RuleId, traderID: userID },
-      });
-      return NextResponse.json({ remove });
-    } else {
-      return NextResponse.json({
-        msg: "the request dont have all necessary data!",
-      });
+    const { id: ruleId } = body;
+
+    if (!ruleId || typeof ruleId !== "string") {
+      return NextResponse.json(
+        { error: "Rule ID is required" },
+        { status: 400 }
+      );
     }
+
+    const currentUser = await getCurrentUser();
+    
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const rule = await prisma.rule.findUnique({
+      where: { id: ruleId },
+    });
+
+    if (!rule) {
+      return NextResponse.json(
+        { error: "Rule not found" },
+        { status: 404 }
+      );
+    }
+
+    if (rule.traderID !== currentUser.id) {
+      return NextResponse.json(
+        { error: "Forbidden" },
+        { status: 403 }
+      );
+    }
+
+    await prisma.rule.delete({
+      where: { id: ruleId },
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.log(error);
+    console.error("Error deleting rule:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

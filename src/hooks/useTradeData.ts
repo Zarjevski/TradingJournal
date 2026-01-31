@@ -4,7 +4,7 @@ import { FaHashtag } from "react-icons/fa6";
 
 const useTradeData = () => {
   const data: any = useUserContext();
-  const trades = data.user.trades;
+  const trades = data.user?.trades || [];
 
   const totalTrades = trades.length;
 

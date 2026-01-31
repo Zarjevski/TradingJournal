@@ -12,9 +12,14 @@ type variant = "login" | "register";
 
 const Page = () => {
   const [variant, setVariant] = useState<string>("login");
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const session = useSession();
   const { colorMode } = useColorMode();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (session?.status === "authenticated") {
@@ -22,13 +27,16 @@ const Page = () => {
     }
   }, [session?.status, router]);
 
+  // Prevent hydration mismatch by using default colorMode until mounted
+  const displayColorMode = mounted ? colorMode : "dark";
+
   return (
     <section className="w-full h-screen flex flex-col items-center justify-center">
-      <Logo width={300} height={200} colorMode={colorMode} />
+      <Logo width={300} height={200} colorMode={displayColorMode} />
       {variant === "login" ? (
-        <Login changeVariant={setVariant} colorMode={colorMode} />
+        <Login changeVariant={setVariant} colorMode={displayColorMode} />
       ) : (
-        <Register changeVariant={setVariant} colorMode={colorMode}/>
+        <Register changeVariant={setVariant} colorMode={displayColorMode} />
       )}
     </section>
   );

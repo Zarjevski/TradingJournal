@@ -1,37 +1,63 @@
 import axios from "axios";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import type { UserContextData, Trade, Rule, Exchange } from "@/types";
 
-const UserContext = createContext({});
+const UserContext = createContext<UserContextData>({
+  user: null,
+  isLoading: true,
+  refetch: async () => {},
+});
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState({
-    firstName: "",
-    lastName: "",
-    id: "",
-    rules: [],
-    trades: [],
-    exchanges: [],
-  });
+  const [user, setUser] = useState<UserContextData["user"]>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session, status } = useSession();
 
-  const getUser = async () => {
+  const getUser = useCallback(async () => {
+    // Wait for session to be loaded
+    if (status === "loading") {
+      return;
+    }
+
+    // Only fetch user data if authenticated
+    if (status !== "authenticated" || !session) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const user = await axios.get("/api/user");      
-      const { firstName, lastName, id, rules, trades, exchanges } = await user.data;
-      setUser({ firstName, lastName, id, rules, trades, exchanges});
-    } catch (error) {
-      console.log(error);
+      const response = await axios.get<{
+        firstName: string;
+        lastName: string;
+        id: string;
+        photoURL?: string | null;
+        status?: string | null;
+        rules: Rule[];
+        trades: Trade[];
+        exchanges: Exchange[];
+      }>("/api/user");
+      
+      const { firstName, lastName, id, photoURL, status, rules, trades, exchanges } = response.data;
+      setUser({ firstName, lastName, id, photoURL, status, rules, trades, exchanges });
+    } catch (error: any) {
+      // Only log non-401 errors (401 is expected when not authenticated)
+      if (error.response?.status !== 401) {
+        console.error("Error fetching user data:", error);
+      }
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session, status]);
 
   useEffect(() => {
     getUser();
-  }, []);
+  }, [getUser]);
 
   return (
-    <UserContext.Provider value={{ user, isLoading }}>
+    <UserContext.Provider value={{ user, isLoading, refetch: getUser }}>
       {children}
     </UserContext.Provider>
   );

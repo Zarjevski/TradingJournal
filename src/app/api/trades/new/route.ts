@@ -1,16 +1,52 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 
-const prisma = new PrismaClient();
-
-//  remember to push the updates to database schema
+interface TradeFormData {
+  symbol: string;
+  position: string;
+  margin: string;
+  date: string;
+  status: string;
+  size: string;
+  reason: string;
+  result: string;
+  exchangeName: string;
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { id }: any = await getCurrentUser();
-    const { exchangeId } = body;
+    const { exchangeId, formData } = body;
+
+    if (!exchangeId || typeof exchangeId !== "string") {
+      return NextResponse.json(
+        { error: "Exchange ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const currentUser = await getCurrentUser();
+    
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // Verify exchange belongs to user
+    const exchange = await prisma.exchange.findUnique({
+      where: { id: exchangeId },
+    });
+
+    if (!exchange || exchange.traderID !== currentUser.id) {
+      return NextResponse.json(
+        { error: "Exchange not found or access denied" },
+        { status: 404 }
+      );
+    }
+
     const {
       symbol,
       position,
@@ -21,27 +57,80 @@ export async function POST(request: Request) {
       reason,
       result,
       exchangeName,
-    } = body.formData;
-    const isoDate = new Date(`${date} 00:00 UTC`).toISOString();
-    const sizeToInt = parseInt(size);
+    } = formData as TradeFormData;
+
+    // Validate required fields
+    if (!symbol || !position || !date || !status || !size || !reason || !exchangeName) {
+      const missingFields = [];
+      if (!symbol) missingFields.push("symbol");
+      if (!position) missingFields.push("position");
+      if (!date) missingFields.push("date");
+      if (!status) missingFields.push("status");
+      if (!size) missingFields.push("size");
+      if (!reason) missingFields.push("reason");
+      if (!exchangeName) missingFields.push("exchangeName");
+      
+      return NextResponse.json(
+        { error: `Missing required fields: ${missingFields.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    const isoDate = new Date(`${date} 00:00 UTC`);
+    if (isNaN(isoDate.getTime())) {
+      return NextResponse.json(
+        { error: "Invalid date format" },
+        { status: 400 }
+      );
+    }
+
+    const sizeToInt = parseInt(size, 10);
+    if (isNaN(sizeToInt) || sizeToInt <= 0) {
+      return NextResponse.json(
+        { error: "Size must be a positive number" },
+        { status: 400 }
+      );
+    }
+
+    // Result is optional, default to 0 if not provided or empty
+    const resultToInt = result && result.trim() !== "" 
+      ? parseInt(result, 10) 
+      : 0;
+    if (isNaN(resultToInt)) {
+      return NextResponse.json(
+        { error: "Result must be a valid number" },
+        { status: 400 }
+      );
+    }
+
+    // Margin is optional, default to empty string if not provided
+    const marginValue = margin && margin.trim() !== "" ? margin.trim() : "";
+
+    const imageURL = formData.imageURL || null;
+
     const trade = await prisma.trade.create({
       data: {
-        traderID: id,
-        exchangeName,
-        position,
-        exchangeId,
-        margin,
+        traderID: currentUser.id,
+        exchangeID: exchangeId,
+        exchangeName: exchangeName.trim(),
+        position: position.trim(),
+        margin: marginValue,
         date: isoDate,
-        status,
+        status: status.trim(),
         size: sizeToInt,
-        symbol,
-        result,
-        reason,
+        symbol: symbol.trim(),
+        result: resultToInt,
+        reason: reason.trim(),
+        imageURL: imageURL || null,
       },
     });
 
-    return NextResponse.json(trade);
+    return NextResponse.json(trade, { status: 201 });
   } catch (error) {
-    console.log(error);
+    console.error("Error creating trade:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

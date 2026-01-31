@@ -1,22 +1,29 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function DELETE(request: Request) {
   try {
-    const body = await request.json();
     const currentUser = await getCurrentUser();
-    const { id: userID }: any = currentUser;
-    const { id: RuleId }: any = body;
-    console.log(body);
+    
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-    const remove = await prisma.rule.delete({
-      where: { id: RuleId, ownerID: userID },
+    // Delete user and all related data (cascade)
+    await prisma.user.delete({
+      where: { id: currentUser.id },
     });
-    return NextResponse.json({ remove });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.log(error);
+    console.error("Error deleting user:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

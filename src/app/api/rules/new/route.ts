@@ -1,16 +1,41 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 
-const prisma = new PrismaClient();
-
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { text } = body;
-  const { id }: any = await getCurrentUser();
-  const rule = await prisma.rule.create({
-    data: { traderID: id, content: text },
-  });
+  try {
+    const body = await request.json();
+    const { text } = body;
 
-  return NextResponse.json(rule);
+    if (!text || typeof text !== "string" || text.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Rule content is required" },
+        { status: 400 }
+      );
+    }
+
+    const currentUser = await getCurrentUser();
+    
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const rule = await prisma.rule.create({
+      data: {
+        traderID: currentUser.id,
+        content: text.trim(),
+      },
+    });
+
+    return NextResponse.json(rule, { status: 201 });
+  } catch (error) {
+    console.error("Error creating rule:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

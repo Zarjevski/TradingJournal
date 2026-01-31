@@ -1,6 +1,7 @@
 import React from "react";
 import Badge from "@/components/common/Badge";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 interface TradeProps {
   id: string | number;
@@ -10,8 +11,8 @@ interface TradeProps {
   date: string;
   position: string;
   status: string;
-  colorMode: string
-  exchange: string
+  colorMode: string;
+  exchange: string;
 }
 
 const Trade: React.FC<TradeProps> = ({
@@ -23,28 +24,60 @@ const Trade: React.FC<TradeProps> = ({
   position,
   status,
   exchange,
-  colorMode
+  colorMode,
 }) => {
-  const positionColor = position === "long" ? "bg-green-500" : "bg-red-500";
-  const statusColor = status === "win" ? "bg-green-500" : "bg-red-500";
+  const positionColor =
+    position === "long"
+      ? "bg-green-500"
+      : position === "short"
+      ? "bg-red-500"
+      : "bg-gray-500";
+  const statusColor =
+    status === "win"
+      ? "bg-green-500"
+      : status === "loss"
+      ? "bg-red-500"
+      : "bg-yellow-500";
   const router = useRouter();
+
   return (
-    <tr
-      className={`h-12 text-center cursor-pointer ${colorMode === "light" ? "hover:bg-gray-100" : "hover:bg-gray-700"}`}
+    <motion.tr
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      whileHover={{ scale: 1.01 }}
+      className={`h-14 text-center cursor-pointer transition-all duration-200 border-b ${
+        colorMode === "light"
+          ? "hover:bg-blue-50 border-gray-100"
+          : "hover:bg-gray-700/50 border-gray-700"
+      }`}
       onClick={() => router.push(`/trades/${id}`)}
     >
-      <td>{symbol}</td>
-      <td>${size}</td>
-      <td className="flex items-center justify-center capitalize">
-        <Badge text={position} color={positionColor} />
+      <td className="px-4">
+        <span className="font-semibold text-lg">{symbol}</span>
       </td>
-      <td>{margin}</td>
-      <td className="flex items-center p-5 justify-center capitalize">
-        <Badge text={status} color={statusColor} />
+      <td className="px-4">
+        <span className="font-medium">${parseInt(size).toLocaleString()}</span>
       </td>
-      <td>{date}</td>
-      <td>{exchange}</td>
-    </tr>
+      <td className="px-4">
+        <div className="flex items-center justify-center capitalize">
+          <Badge text={position} color={positionColor} />
+        </div>
+      </td>
+      <td className="px-4">
+        <span className="font-medium">{margin}</span>
+      </td>
+      <td className="px-4">
+        <div className="flex items-center justify-center capitalize">
+          <Badge text={status} color={statusColor} />
+        </div>
+      </td>
+      <td className="px-4">
+        <span className="text-sm">{date}</span>
+      </td>
+      <td className="px-4">
+        <span className="text-sm font-medium">{exchange}</span>
+      </td>
+    </motion.tr>
   );
 };
 

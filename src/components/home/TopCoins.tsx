@@ -1,5 +1,5 @@
 import React from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import axios from "axios";
 import Image from "next/image";
 
@@ -18,7 +18,9 @@ const TopCoins = () => {
   return (
     <div
       className={`rounded col-start-2 col-span-2 w-full h-full border overflow-hidden ${
-        colorMode === "light" ? "text-black bg-white" : "bg-gray-800 text-white"
+        colorMode === "light" 
+          ? "text-black bg-white border-gray-200" 
+          : "bg-gray-800 text-white border-white/30"
       }`}
     >
       <header className="shadow py-2 px-4 h-14 flex items-center">
@@ -32,7 +34,7 @@ const TopCoins = () => {
           return (
             <div
               className={`w-full h-12 border-b py-1 flex items-center justify-between gap-2 font-medium ${
-                colorMode === "light" ? "border-gray-200/[0.8] " : "border-gray-700/[0.7] "
+                colorMode === "light" ? "border-gray-200/[0.8] " : "border-white/30 "
               }`}
               key={index}
             >

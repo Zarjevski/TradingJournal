@@ -1,10 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-
-const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -34,12 +32,17 @@ export const authOptions: NextAuthOptions = {
             user.password
           );
           if (!isCorrectPassword) {
-            throw new Error("Invalid credentials pwd");
+            throw new Error("Invalid credentials");
           }
 
-          return user;
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+          };
         } catch (error) {
-          console.log(error);
+          console.error("Authentication error:", error);
+          return null;
         }
       },
     }),
@@ -48,7 +51,11 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/login",
+  },
 };
 
 const handler = NextAuth(authOptions);

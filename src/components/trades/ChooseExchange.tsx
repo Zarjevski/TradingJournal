@@ -28,7 +28,7 @@ const ChooseExchange = ({
           ? [0, 1].map((item, index) => {
               return <Skeleton hieght={"40"} width={"80"} key={index} />;
             })
-          : user.exchanges.map((exchange: any, index: number) => {
+          : user?.exchanges?.map((exchange: any, index: number) => {
               return (
                 <ExchangeCard
                   title={exchange.exchangeName}

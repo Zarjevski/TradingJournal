@@ -2,72 +2,149 @@
 
 import React, { useState } from "react";
 import Input from "../common/Input";
+import Button from "../common/Button";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useColorMode } from "@chakra-ui/react";
 
-const Login = ({
-  changeVariant,
-  colorMode,
-}: {
-  changeVariant: any;
+interface LoginProps {
+  changeVariant: (variant: "login" | "register") => void;
   colorMode: string;
-}) => {
+}
+
+const Login: React.FC<LoginProps> = ({ changeVariant, colorMode }) => {
+  const { colorMode: chakraColorMode } = useColorMode();
+  const actualColorMode = colorMode || chakraColorMode;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!email || !password) {
+      setError("Please enter both email and password");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (response?.error) {
+        setError("Invalid email or password");
+      } else if (response?.ok) {
+        window.location.href = "/";
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <form
-      className={`p-12 mt-8 h-2/4 border sm:w-1/6 lg:w-1/4 md:w-2/6 shadow ${
-        colorMode === "light" ? "bg-white" : "bg-gray-800"
-      } `}
-      onSubmit={async (e: React.SyntheticEvent) => {
-        e.preventDefault();
-        try {
-          const response = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      }}
+    <motion.form
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={`p-8 md:p-12 mt-8 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
+        actualColorMode === "light"
+          ? "bg-white/95 border-gray-200 text-gray-900"
+          : "bg-gray-800/95 border-gray-700 text-white"
+      }`}
+      onSubmit={handleSubmit}
     >
-      <div className="text-center mb-6">
-        <h1 className="text-xl capitalize font-medium ">wellcom trader!</h1>
-        <h2 className="font-light text-gray-500">
-          Please login or create new account
+      <div className="text-center mb-8">
+        <h1 className="text-2xl capitalize font-bold mb-2">
+          Welcome Trader!
+        </h1>
+        <h2
+          className={`text-sm ${
+            actualColorMode === "light" ? "text-gray-600" : "text-gray-400"
+          }`}
+        >
+          Please login or create a new account
         </h2>
       </div>
-      <Input
-        type="email"
-        name="email"
-        label="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Input
-        type="password"
-        name="Password"
-        label="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button
-        className="w-full bg-gray-950 text-white h-12 my-2 rounded font-bold"
-        type="submit"
-      >
-        Sign in
-      </button>
-      <div className="flex justify-between mt-2 capitalize">
-        <p
-          onClick={() => changeVariant("register")}
-          className="hover:underline cursor-pointer"
+
+      {error && (
+        <div
+          className={`mb-4 p-3 rounded-lg text-sm font-medium ${
+            actualColorMode === "light"
+              ? "bg-red-50 text-red-700 border border-red-200"
+              : "bg-red-900/30 text-red-400 border border-red-800"
+          }`}
         >
-          create account
-        </p>
-        <Link href={"forgot-password"} className="hover:underline">
-          forgot password?
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <Input
+          type="email"
+          name="email"
+          label="Email"
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setError("");
+          }}
+          value={email}
+          required
+        />
+        <Input
+          type="password"
+          name="password"
+          label="Password"
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError("");
+          }}
+          value={password}
+          required
+        />
+      </div>
+
+      <Button
+        text={isLoading ? "Signing In..." : "Sign In"}
+        width="w-full"
+        type="submit"
+        disabled={isLoading}
+        variant="primary"
+      />
+
+      <div className="flex justify-between mt-6 text-sm">
+        <button
+          type="button"
+          className={`capitalize transition-colors ${
+            actualColorMode === "light"
+              ? "text-blue-600 hover:text-blue-700"
+              : "text-blue-400 hover:text-blue-300"
+          }`}
+          onClick={() => changeVariant("register")}
+        >
+          Create account
+        </button>
+        <Link
+          href="/forgot-password"
+          className={`transition-colors ${
+            actualColorMode === "light"
+              ? "text-gray-600 hover:text-gray-700"
+              : "text-gray-400 hover:text-gray-300"
+          }`}
+        >
+          Forgot password?
         </Link>
       </div>
-    </form>
+    </motion.form>
   );
 };
 

@@ -1,30 +1,35 @@
-import { usePathname } from "next/navigation";
-import { IoHomeOutline, IoAnalyticsOutline, IoSettingsOutline, IoFileTrayFullOutline } from "react-icons/io5";
+import { IoHomeOutline, IoAnalyticsOutline, IoSettingsOutline, IoFileTrayFullOutline, IoPeopleOutline } from "react-icons/io5";
 
-const useSidebarLinks = () => {
-  const  pathname  = usePathname();
-  const links = [
+interface SidebarLink {
+  title: string;
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const useSidebarLinks = (): SidebarLink[] => {
+  const links: SidebarLink[] = [
     {
       title: "Home",
-      active: pathname === "/",
       path: "/",
       icon: IoHomeOutline
     },
     {
       title: "Analytics",
-      active: pathname === "/analytics",
       path: "/analytics",
       icon: IoAnalyticsOutline
     },
     {
       title: "Trades",
-      active: pathname === "/trades",
       path: "/trades",
       icon: IoFileTrayFullOutline
     },
     {
+      title: "Team",
+      path: "/team",
+      icon: IoPeopleOutline
+    },
+    {
       title: "Settings",
-      active: pathname === "/settings",
       path: "/settings/information",
       icon: IoSettingsOutline
     },
@@ -33,4 +38,4 @@ const useSidebarLinks = () => {
   return links;
 };
 
-export default useSidebarLinks
+export default useSidebarLinks;

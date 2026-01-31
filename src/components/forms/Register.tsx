@@ -1,83 +1,168 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Input from "../common/Input";
+import Button from "../common/Button";
 import axios from "axios";
+import { motion } from "framer-motion";
+import { useColorMode } from "@chakra-ui/react";
 
-const Register = ({
-  changeVariant,
-  colorMode,
-}: {
-  changeVariant: any;
+interface RegisterProps {
+  changeVariant: (variant: "login" | "register") => void;
   colorMode: string;
-}) => {
-  const [data, setData] = useState<any>({
+}
+
+const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
+  const { colorMode: chakraColorMode } = useColorMode();
+  const actualColorMode = colorMode || chakraColorMode;
+  const [data, setData] = useState({
     email: "",
     password: "",
-    firstname: "",
-    lastname: "",
+    firstName: "",
+    lastName: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData((prev: any) => ({ ...prev, [name]: value }));
+    setData((prev) => ({ ...prev, [name]: value }));
+    setError(""); // Clear error on input change
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!data.firstName || !data.lastName || !data.email || !data.password) {
+      setError("All fields are required");
+      return;
+    }
+
+    if (data.password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await axios.post("/api/register", {
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        password: data.password,
+      });
+      
+      // Auto-login after registration
+      await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: true,
+        callbackUrl: "/",
+      });
+    } catch (error: any) {
+      setError(
+        error.response?.data?.error || "Registration failed. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <form
-      className={`p-12 mt-8 h-4/6 border w-1/4 shadow ${colorMode === "lght" ? "bg-white" : "bg-gray-800"}`}
-      onSubmit={async (e: React.SyntheticEvent) => {
-        e.preventDefault();
-        if (
-          data?.firstName &&
-          data?.lastName &&
-          data?.email &&
-          data?.password
-        ) {
-          try {
-            const signUp = await axios.post("/api/register", data);
-            signIn("credentials", data.email, data.password);
-          } catch (error) {
-            console.log(error);
-          }
-        }
-      }}
+    <motion.form
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={`p-8 md:p-12 mt-8 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
+        actualColorMode === "light"
+          ? "bg-white/95 border-gray-200 text-gray-900"
+          : "bg-gray-800/95 border-gray-700 text-white"
+      }`}
+      onSubmit={handleSubmit}
     >
-      <header className="text-center mb-6">
-        <h1 className="text-xl capitalize font-bold">Create an account</h1>
-        <h2 className="text-gray-500">start journaling your trades today</h2>
-      </header>
-      <Input
-        type="text"
-        name="firstName"
-        label="firstName"
-        onChange={handleChanges}
-      />
-      <Input
-        type="text"
-        name="lastName"
-        label="lastName"
-        onChange={handleChanges}
-      />
-      <Input type="email" name="email" label="Email" onChange={handleChanges} />
-      <Input
-        type="password"
-        name="password"
-        label="password"
-        onChange={handleChanges}
-      />
-      <button
-        className="w-full bg-gray-950 text-white h-12 my-2 rounded font-bold"
-        type="submit"
-      >
-        Sign up
-      </button>
-      <footer className="w-full flex justify-center mt-6">
+      <header className="text-center mb-8">
+        <h1 className="text-2xl capitalize font-bold mb-2">
+          Create an account
+        </h1>
         <h2
-          className="flex items-center font-medium cursor-pointer"
+          className={`text-sm ${
+            actualColorMode === "light" ? "text-gray-600" : "text-gray-400"
+          }`}
+        >
+          Start journaling your trades today
+        </h2>
+      </header>
+
+      {error && (
+        <div
+          className={`mb-4 p-3 rounded-lg text-sm font-medium ${
+            actualColorMode === "light"
+              ? "bg-red-50 text-red-700 border border-red-200"
+              : "bg-red-900/30 text-red-400 border border-red-800"
+          }`}
+        >
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <Input
+          type="text"
+          name="firstName"
+          label="First Name"
+          onChange={handleChanges}
+          value={data.firstName}
+          required
+        />
+        <Input
+          type="text"
+          name="lastName"
+          label="Last Name"
+          onChange={handleChanges}
+          value={data.lastName}
+          required
+        />
+        <Input
+          type="email"
+          name="email"
+          label="Email"
+          onChange={handleChanges}
+          value={data.email}
+          required
+        />
+        <Input
+          type="password"
+          name="password"
+          label="Password"
+          onChange={handleChanges}
+          value={data.password}
+          required
+          placeholder="At least 8 characters"
+        />
+      </div>
+
+      <Button
+        text={isLoading ? "Creating Account..." : "Sign Up"}
+        width="w-full"
+        type="submit"
+        disabled={isLoading}
+        variant="primary"
+      />
+
+      <footer className="w-full flex justify-center mt-6">
+        <button
+          type="button"
+          className={`text-sm font-medium transition-colors ${
+            actualColorMode === "light"
+              ? "text-blue-600 hover:text-blue-700"
+              : "text-blue-400 hover:text-blue-300"
+          }`}
           onClick={() => changeVariant("login")}
         >
-          I already have a account
-        </h2>
+          I already have an account
+        </button>
       </footer>
-    </form>
+    </motion.form>
   );
 };
 

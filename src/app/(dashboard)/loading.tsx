@@ -1,21 +1,9 @@
-"use client";
+import Spinner from "@/components/ui/Spinner";
 
-import React from "react";
-import { useColorMode } from "@chakra-ui/react";
-import { FaSpinner } from "react-icons/fa6";
-
-const Loading = () => {
-  const { colorMode } = useColorMode();
+export default function Loading() {
   return (
-    <section className="w-full h-[92vh] flex justify-center items-center">
-      <FaSpinner
-        id={"spinner"}
-        className={`h-16 w-16 ${
-          colorMode === "light" ? "text-black" : "text-white"
-        }`}
-      />
-    </section>
+    <div className="w-full h-[92vh] flex justify-center items-center">
+      <Spinner size="lg" />
+    </div>
   );
-};
-
-export default Loading;
+}

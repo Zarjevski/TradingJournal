@@ -1,48 +1,48 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    // get user details
     const currentUser = await getCurrentUser();
-    const { firstName, lastName, id }: any = currentUser;
-    // get all trades
-    try {
-      const trades = await prisma.trade.findMany({
-        where: {
-          traderID: id,
-        },
-      });
-      // get all users rules
-      const rules = await prisma.rule.findMany({
-        where: {
-          traderID: id,
-        },
-      });
-      // get all exchages
-      const exchanges = await prisma.exchange.findMany({
-        where: {
-          traderID: id,
-        },
-      });      
-      return NextResponse.json({
-        firstName,
-        lastName,
-        id,
-        trades,
-        rules,
-        exchanges,
-      });
-    } catch (error) {
-      console.log(error);
-      return NextResponse.json('there is an error')
+    
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
-    // return
+
+    const { firstName, lastName, id, photoURL, status } = currentUser;
+
+    const [trades, rules, exchanges] = await Promise.all([
+      prisma.trade.findMany({
+        where: { traderID: id },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.rule.findMany({
+        where: { traderID: id },
+      }),
+      prisma.exchange.findMany({
+        where: { traderID: id },
+      }),
+    ]);
+
+    return NextResponse.json({
+      firstName,
+      lastName,
+      id,
+      photoURL,
+      status: status || "NEUTRAL",
+      trades,
+      rules,
+      exchanges,
+    });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json('there is an error')
+    console.error("Error fetching user data:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

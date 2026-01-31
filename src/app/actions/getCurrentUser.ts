@@ -1,18 +1,33 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import getSession from "./getSession";
-import { NextResponse } from "next/server";
-const prisma = new PrismaClient();
 
-const getCurrentUser = async () => {
+interface CurrentUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  photoURL?: string | null;
+  status?: string | null;
+}
+
+const getCurrentUser = async (): Promise<CurrentUser | null> => {
   try {
     const session = await getSession();
     if (!session?.user?.email) {
-      return NextResponse.json({ msg: "no session" });
+      return null;
     }
 
     const currentUser = await prisma.user.findUnique({
       where: {
         email: session.user.email as string,
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        photoURL: true,
+        status: true,
       },
     });
 
@@ -21,7 +36,8 @@ const getCurrentUser = async () => {
     }
 
     return currentUser;
-  } catch (error: any) {
+  } catch (error) {
+    console.error("Error getting current user:", error);
     return null;
   }
 };
