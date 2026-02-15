@@ -7,6 +7,8 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Prisma 7 moved url to prisma.config.ts; MongoDB is not yet supported in Prisma 7.
+// Keep url here for Prisma 5/6 (required for MongoDB).
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
