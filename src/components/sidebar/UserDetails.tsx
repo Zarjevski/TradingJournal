@@ -158,11 +158,11 @@ const UserDetails = ({
     <div
       className={`
         w-full border-b transition-colors duration-200
-        ${colorMode === "light" ? "border-gray-200" : "border-gray-700"}
+        ${colorMode === "light" ? "border-gray-300" : "border-gray-700"}
       `}
     >
       {/* Toggle Button */}
-      <div className="h-14 border-b flex w-full justify-end">
+      <div className={`h-14 border-b flex w-full justify-end ${colorMode === "light" ? "border-gray-300" : "border-gray-700"}`}>
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -172,7 +172,7 @@ const UserDetails = ({
             ${
               colorMode === "light"
                 ? "hover:bg-gray-100 text-gray-700 active:bg-gray-200"
-                : "hover:bg-gray-800 text-gray-300 active:bg-gray-700"
+                : "hover:bg-gray-800/80 text-gray-200 active:bg-gray-700/80 border border-transparent hover:border-gray-600/50"
             }
             cursor-pointer transition-colors duration-200 rounded-lg m-1
           `}

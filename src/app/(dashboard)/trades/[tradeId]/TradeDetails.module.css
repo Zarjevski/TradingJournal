@@ -131,13 +131,19 @@
 }
 
 .quickActions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
 }
 
 .quickActionButton {
-  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 380px) {
+  .quickActions {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form {

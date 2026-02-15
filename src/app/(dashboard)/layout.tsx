@@ -21,11 +21,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <>
       <Modal />
       <main
-        className={`min-h-screen transition-colors duration-300 ${
-          displayColorMode === "light"
-            ? "bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50"
-            : "bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900"
-        }`}
+        className={`min-h-screen transition-colors duration-300 app-bg`}
       >
         <Navbar />
         <section className="flex relative h-[92vh]">

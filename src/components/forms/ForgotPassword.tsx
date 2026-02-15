@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import axios from "axios";
@@ -9,12 +10,12 @@ import { useColorMode } from "@/context/ColorModeContext";
 import { IoMailOutline, IoCheckmarkCircle } from "react-icons/io5";
 
 interface ForgotPasswordProps {
-  colorMode: string;
+  colorMode?: string;
 }
 
-const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode }) => {
-  const { colorMode: chakraColorMode } = useColorMode();
-  const actualColorMode = colorMode || chakraColorMode;
+const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorModeProp }) => {
+  const { colorMode: contextColorMode } = useColorMode();
+  const actualColorMode = colorModeProp ?? contextColorMode;
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -77,13 +78,17 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode }) => {
             We've sent a password reset link to your email address. Please
             check your inbox and follow the instructions to reset your password.
           </p>
-          <p
-            className={`text-xs ${
-              actualColorMode === "light" ? "text-gray-500" : "text-gray-500"
-            }`}
-          >
+          <p className={`text-xs ${actualColorMode === "light" ? "text-gray-500" : "text-gray-400"}`}>
             Didn't receive the email? Check your spam folder or try again.
           </p>
+          <Link
+            href="/auth/login"
+            className={`inline-block mt-4 text-sm font-medium ${
+              actualColorMode === "light" ? "text-blue-600 hover:text-blue-700" : "text-purple-400 hover:text-purple-300"
+            }`}
+          >
+            ← Back to login
+          </Link>
         </div>
       </motion.div>
     );
@@ -107,11 +112,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode }) => {
             className={`p-3 rounded-full ${
               actualColorMode === "light"
                 ? "bg-blue-100"
-                : "bg-blue-900/30"
+                : "bg-purple-900/30"
             }`}
           >
             <IoMailOutline className={`w-8 h-8 ${
-              colorMode === "light" ? "text-blue-600" : "text-blue-400"
+              actualColorMode === "light" ? "text-blue-600" : "text-purple-400"
             }`} />
           </div>
         </div>
@@ -153,13 +158,15 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode }) => {
         />
       </div>
 
-      <Button
-        text={isLoading ? "Sending..." : "Send Reset Link"}
-        width="w-full"
-        type="submit"
-        disabled={isLoading}
-        variant="primary"
-      />
+      <div className="mt-6">
+        <Button
+          text={isLoading ? "Sending..." : "Send Reset Link"}
+          width="w-full"
+          type="submit"
+          disabled={isLoading}
+          variant="primary"
+        />
+      </div>
     </motion.form>
   );
 };

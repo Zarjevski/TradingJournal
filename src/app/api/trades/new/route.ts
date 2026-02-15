@@ -108,6 +108,7 @@ export async function POST(request: Request) {
 
     const imageURL = formData.imageURL || null;
 
+    // Create trade and update exchange balance so P&L is reflected
     const trade = await prisma.trade.create({
       data: {
         traderID: currentUser.id,
@@ -124,6 +125,19 @@ export async function POST(request: Request) {
         imageURL: imageURL || null,
       },
     });
+
+    // Update the exchange balance by the trade result (profit/loss)
+    // Example: starting balance 100, result 50 -> new balance 150
+    if (resultToInt !== 0) {
+      await prisma.exchange.update({
+        where: { id: exchangeId },
+        data: {
+          balance: {
+            increment: resultToInt,
+          },
+        },
+      });
+    }
 
     return NextResponse.json(trade, { status: 201 });
   } catch (error) {

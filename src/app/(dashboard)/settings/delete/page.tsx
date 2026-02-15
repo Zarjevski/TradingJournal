@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaExclamationTriangle, FaTrash } from "react-icons/fa";
@@ -46,7 +46,7 @@ const Page = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="w-full h-full p-6"
+      className="w-full h-full p-6 app-bg"
     >
       <div
         className={`rounded-lg border shadow-lg backdrop-blur-sm p-8 ${

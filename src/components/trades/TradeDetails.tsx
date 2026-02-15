@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import SearchableSelect from "../common/SearchableSelect";
 import RadioGroup from "../common/RadioGroup";
 import Input from "../common/Input";
@@ -163,13 +163,13 @@ const TradeDetails = ({
         />
       </div>
 
-      {/* Result */}
+      {/* Result: positive = profit, negative = loss; for Loss status you can enter a positive number and it will be recorded as a loss */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
           label={"result (P/L)"}
           name={"result"}
           type={"number"}
-          placeholder={"profit or loss amount"}
+          placeholder={"e.g. 50 for profit, 20 for loss (or -20)"}
           value={formData.result || ""}
           onChange={(e) => setFormData({ ...formData, result: e.target.value })}
         />

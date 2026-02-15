@@ -46,7 +46,8 @@ export async function POST(
     const body = await request.json();
     const { email, role } = body;
 
-    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const rawEmail = typeof email === "string" ? email.trim() : "";
+    if (!rawEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {
       return badRequestResponse("Valid email is required");
     }
 
@@ -54,15 +55,27 @@ export async function POST(
       return badRequestResponse("Role must be ADMIN or MEMBER");
     }
 
-    // Check if user is already a member
-    const existingMember = await prisma.teamMember.findFirst({
-      where: {
-        teamID: teamId,
-        user: {
-          email: email.toLowerCase(),
-        },
-      },
+    const normalizedEmail = rawEmail.toLowerCase();
+
+    // Resolve invited user by email (case-insensitive) so we can store invitedUserID for reliable matching
+    const invitedUser = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: "insensitive" } },
+      select: { id: true },
     });
+
+    // Check if user is already a member
+    const existingMember = invitedUser
+      ? await prisma.teamMember.findUnique({
+          where: {
+            teamID_userID: { teamID: teamId, userID: invitedUser.id },
+          },
+        })
+      : await prisma.teamMember.findFirst({
+          where: {
+            teamID: teamId,
+            user: { email: normalizedEmail },
+          },
+        });
 
     if (existingMember) {
       return badRequestResponse("User is already a team member");
@@ -76,7 +89,8 @@ export async function POST(
     const invite = await prisma.teamInvite.create({
       data: {
         teamID: teamId,
-        email: email.toLowerCase(),
+        email: normalizedEmail,
+        invitedUserID: invitedUser?.id ?? null,
         role,
         token,
         expiresAt,

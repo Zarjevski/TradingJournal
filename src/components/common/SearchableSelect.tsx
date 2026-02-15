@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaChevronDown } from "react-icons/fa";
 
@@ -92,7 +92,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
               }`}
             >
               {/* Search Input */}
-              <div className="p-2 border-b">
+              <div className={`p-2 border-b ${colorMode === "light" ? "border-gray-200" : "border-gray-600"}`}>
                 <div className="relative">
                   <FaSearch
                     className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
@@ -107,7 +107,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                     className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-all ${
                       colorMode === "light"
                         ? "bg-gray-50 border-gray-300 text-gray-900 focus:border-blue-500"
-                        : "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                        : "bg-gray-700 border-gray-600 text-white focus:border-purple-500"
                     }`}
                     autoFocus
                   />
@@ -138,7 +138,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                         value === option.value
                           ? colorMode === "light"
                             ? "bg-blue-50 text-blue-700"
-                            : "bg-blue-900/30 text-blue-300"
+                            : "bg-purple-900/30 text-purple-300"
                           : colorMode === "light"
                           ? "hover:bg-gray-50 text-gray-900"
                           : "hover:bg-gray-700 text-gray-300"

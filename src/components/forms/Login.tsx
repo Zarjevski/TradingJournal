@@ -6,16 +6,16 @@ import Button from "../common/Button";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 
 interface LoginProps {
   changeVariant: (variant: "login" | "register") => void;
-  colorMode: string;
+  colorMode?: string;
 }
 
-const Login: React.FC<LoginProps> = ({ changeVariant, colorMode }) => {
-  const { colorMode: chakraColorMode } = useColorMode();
-  const actualColorMode = colorMode || chakraColorMode;
+const Login: React.FC<LoginProps> = ({ changeVariant, colorMode: colorModeProp }) => {
+  const { colorMode: contextColorMode } = useColorMode();
+  const actualColorMode = colorModeProp ?? contextColorMode;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -113,13 +113,15 @@ const Login: React.FC<LoginProps> = ({ changeVariant, colorMode }) => {
         />
       </div>
 
-      <Button
-        text={isLoading ? "Signing In..." : "Sign In"}
-        width="w-full"
-        type="submit"
-        disabled={isLoading}
-        variant="primary"
-      />
+      <div className="mt-6">
+        <Button
+          text={isLoading ? "Signing In..." : "Sign In"}
+          width="w-full"
+          type="submit"
+          disabled={isLoading}
+          variant="primary"
+        />
+      </div>
 
       <div className="flex justify-between mt-6 text-sm">
         <button
@@ -127,7 +129,7 @@ const Login: React.FC<LoginProps> = ({ changeVariant, colorMode }) => {
           className={`capitalize transition-colors ${
             actualColorMode === "light"
               ? "text-blue-600 hover:text-blue-700"
-              : "text-blue-400 hover:text-blue-300"
+              : "text-purple-400 hover:text-purple-300"
           }`}
           onClick={() => changeVariant("register")}
         >

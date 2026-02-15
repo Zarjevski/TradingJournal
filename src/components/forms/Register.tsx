@@ -4,7 +4,7 @@ import Input from "../common/Input";
 import Button from "../common/Button";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 
 interface RegisterProps {
   changeVariant: (variant: "login" | "register") => void;
@@ -141,13 +141,15 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
         />
       </div>
 
-      <Button
-        text={isLoading ? "Creating Account..." : "Sign Up"}
-        width="w-full"
-        type="submit"
-        disabled={isLoading}
-        variant="primary"
-      />
+      <div className="mt-6">
+        <Button
+          text={isLoading ? "Creating Account..." : "Sign Up"}
+          width="w-full"
+          type="submit"
+          disabled={isLoading}
+          variant="primary"
+        />
+      </div>
 
       <footer className="w-full flex justify-center mt-6">
         <button

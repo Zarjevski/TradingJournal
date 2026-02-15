@@ -3,7 +3,7 @@ import {
   MdOutlineKeyboardArrowUp,
   MdOutlineKeyboardArrowDown,
 } from "react-icons/md";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 
 interface DropdownProps {
   list: string[];
@@ -27,16 +27,22 @@ const Dropdown: React.FC<DropdownProps> = ({
         isOpen ? "relative" : ""
       }`}
     >
-      <h1 className="py-2 font-bold capitalize">{title}</h1>
+      <h1 className={`py-2 font-bold capitalize ${colorMode === "light" ? "text-gray-900" : "text-gray-100"}`}>
+        {title}
+      </h1>
       <div
-        className={`h-auto w-full border font-medium ${
-          colorMode == "light" ? "bg-white" : "bg-gray-800"
-        }`}
+        className={`h-auto w-full border font-medium rounded-lg overflow-hidden ${
+          colorMode === "light"
+            ? "bg-white border-gray-300 text-gray-900"
+            : "bg-gray-800 border-gray-600 text-gray-100"
+          }`}
       >
         <div
-          className={`h-10 flex justify-between ${isOpen ? "border-b" : ""}`}
+          className={`h-10 flex justify-between items-center ${isOpen ? "border-b" : ""} ${
+            colorMode === "light" ? "border-gray-200" : "border-gray-600"
+          }`}
         >
-          <div className="p-2 flex items-center ">{value}</div>
+          <div className="p-2 flex items-center">{value}</div>
           <div
             className={`flex items-center justify-center p-2 cursor-pointer`}
             onClick={() => setIsOpen(!isOpen)}

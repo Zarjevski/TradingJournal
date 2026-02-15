@@ -74,6 +74,11 @@ export async function PATCH(request: Request) {
       dataToUpdate.photoURL = body.photoURL ? String(body.photoURL).trim() : null;
     }
 
+    if (body.bio !== undefined) {
+      const val = body.bio === null || body.bio === "" ? null : String(body.bio).trim().slice(0, 500);
+      dataToUpdate.bio = val;
+    }
+
     if (body.status !== undefined) {
       const validStatuses = ["NEUTRAL", "BEARISH", "BULLISH"];
       if (typeof body.status !== "string" || !validStatuses.includes(body.status)) {
@@ -101,6 +106,7 @@ export async function PATCH(request: Request) {
         firstName: true,
         lastName: true,
         photoURL: true,
+        bio: true,
         status: true,
         createdAt: true,
       },

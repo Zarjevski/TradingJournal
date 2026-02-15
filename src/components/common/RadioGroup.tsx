@@ -1,5 +1,5 @@
 import React from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { motion } from "framer-motion";
 
 interface RadioOption {
@@ -52,7 +52,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
                 isSelected
                   ? colorMode === "light"
                     ? "bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-200"
-                    : "bg-blue-900/30 border-blue-500 text-blue-300 ring-2 ring-blue-700"
+                    : "bg-purple-900/30 border-purple-500 text-purple-300 ring-2 ring-purple-700"
                   : colorMode === "light"
                   ? "bg-white border-gray-300 text-gray-700 hover:border-gray-400"
                   : "bg-gray-700/50 border-gray-600 text-gray-300 hover:border-gray-500"

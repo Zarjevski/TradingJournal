@@ -73,6 +73,7 @@ export async function PATCH(request: Request) {
       dataToUpdate.size = sizeToInt;
     }
 
+    let newResult: number = trade.result;
     if (updateData.result !== undefined) {
       const resultToInt = parseInt(String(updateData.result), 10);
       if (isNaN(resultToInt)) {
@@ -82,12 +83,15 @@ export async function PATCH(request: Request) {
         );
       }
       dataToUpdate.result = resultToInt;
+      newResult = resultToInt;
     }
 
+    let newExchangeId: string = trade.exchangeID;
     if (updateData.exchangeID) {
+      const targetExchangeId = String(updateData.exchangeID);
       // Verify exchange belongs to user
       const exchange = await prisma.exchange.findUnique({
-        where: { id: updateData.exchangeID },
+        where: { id: targetExchangeId },
       });
 
       if (!exchange || exchange.traderID !== currentUser.id) {
@@ -96,7 +100,47 @@ export async function PATCH(request: Request) {
           { status: 404 }
         );
       }
-      dataToUpdate.exchangeID = updateData.exchangeID;
+      dataToUpdate.exchangeID = targetExchangeId;
+      newExchangeId = targetExchangeId;
+    }
+
+    // Adjust exchange balances to reflect updated P&L
+    // - If same exchange: increment by (newResult - oldResult)
+    // - If exchange changed: remove oldResult from old exchange, add newResult to new exchange
+    if (newExchangeId === trade.exchangeID) {
+      const delta = newResult - trade.result;
+      if (delta !== 0) {
+        await prisma.exchange.update({
+          where: { id: trade.exchangeID },
+          data: {
+            balance: {
+              increment: delta,
+            },
+          },
+        });
+      }
+    } else {
+      // Move P&L from old exchange to new exchange
+      if (trade.result !== 0) {
+        await prisma.exchange.update({
+          where: { id: trade.exchangeID },
+          data: {
+            balance: {
+              increment: -trade.result,
+            },
+          },
+        });
+      }
+      if (newResult !== 0) {
+        await prisma.exchange.update({
+          where: { id: newExchangeId },
+          data: {
+            balance: {
+              increment: newResult,
+            },
+          },
+        });
+      }
     }
 
     const updatedTrade = await prisma.trade.update({

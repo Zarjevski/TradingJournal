@@ -1,4 +1,4 @@
-import { IoHomeOutline, IoAnalyticsOutline, IoSettingsOutline, IoFileTrayFullOutline, IoPeopleOutline } from "react-icons/io5";
+import { IoHomeOutline, IoAnalyticsOutline, IoSettingsOutline, IoFileTrayFullOutline, IoPeopleOutline, IoTrophyOutline, IoPersonAddOutline } from "react-icons/io5";
 
 interface SidebarLink {
   title: string;
@@ -22,6 +22,16 @@ const useSidebarLinks = (): SidebarLink[] => {
       title: "Trades",
       path: "/trades",
       icon: IoFileTrayFullOutline
+    },
+    {
+      title: "Leaderboards",
+      path: "/leaderboard",
+      icon: IoTrophyOutline
+    },
+    {
+      title: "Friends",
+      path: "/friends",
+      icon: IoPersonAddOutline
     },
     {
       title: "Team",

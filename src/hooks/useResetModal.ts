@@ -1,11 +1,9 @@
 import { useModalContext } from "@/context/ModalContext";
-import React from "react";
 
 const useResetModal = () => {
-  const { setComponent, setIsOpen }: any = useModalContext();
+  const { setIsOpen } = useModalContext();
   const reset = () => {
     setIsOpen(false);
-    setComponent(() => React.Fragment);
   };
   return reset;
 };

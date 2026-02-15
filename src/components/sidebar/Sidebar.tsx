@@ -45,8 +45,8 @@ const Sidebar = () => {
         border-r h-[92vh] shadow-xl overflow-hidden
         ${
           colorMode === "light"
-            ? "text-gray-900 bg-white/98 backdrop-blur-md border-blue-200"
-            : "bg-gray-900/98 text-white border-purple-700/50 backdrop-blur-md"
+            ? "text-gray-900 bg-white/98 backdrop-blur-md border-gray-300"
+            : "bg-gray-900/98 text-white border-gray-700 backdrop-blur-md"
         }
       `}
     >
@@ -69,8 +69,8 @@ const Sidebar = () => {
           text-red-500 hover:text-red-600 font-semibold
           ${
             colorMode === "light"
-              ? "hover:bg-red-50/80 border-blue-200 active:bg-red-100"
-              : "hover:bg-red-900/30 border-purple-700/50 active:bg-red-900/40"
+              ? "hover:bg-red-50/80 border-gray-300 active:bg-red-100"
+              : "hover:bg-red-900/30 border-gray-700 active:bg-red-900/40"
           }
           ${!isOpen ? "justify-center" : "px-4"}
         `}

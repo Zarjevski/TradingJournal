@@ -2,77 +2,88 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useColorMode } from "@/context/ColorModeContext";
-import ResetPasswordForm from "@/components/forms/ResetPassword";
 import Logo from "@/components/common/Logo";
+import ResetPasswordForm from "@/components/forms/ResetPassword";
+import Link from "next/link";
 
-const ResetPasswordContent = () => {
+function ResetPasswordContent() {
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const session = useSession();
   const searchParams = useSearchParams();
   const { colorMode } = useColorMode();
-  const [token, setToken] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const token = searchParams.get("token");
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (mounted) {
-      const tokenParam = searchParams.get("token");
-      if (!tokenParam) {
-        router.push("/auth/forgot-password");
-      } else {
-        setToken(tokenParam);
-      }
+    if (session?.status === "authenticated") {
+      router.push("/");
     }
-  }, [searchParams, router, mounted]);
+  }, [session?.status, router]);
 
-  // Prevent hydration mismatch by using default colorMode until mounted
   const displayColorMode = mounted ? colorMode : "dark";
 
-  if (!mounted || !token) {
+  if (!token) {
     return (
-      <section className="w-full min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className={displayColorMode === "light" ? "text-gray-600" : "text-gray-400"}>Loading...</p>
+      <section className="w-full min-h-screen flex flex-col items-center justify-center p-4 app-bg">
+        <Link
+          href="/auth/login"
+          className={`absolute top-4 left-4 text-sm font-medium hover:underline ${
+            displayColorMode === "light" ? "text-blue-600" : "text-purple-400"
+          }`}
+        >
+          ← Back to login
+        </Link>
+        <Logo width={280} height={140} colorMode={displayColorMode} />
+        <div className={`mt-8 p-8 max-w-md w-full border rounded-xl shadow-2xl text-center ${
+          displayColorMode === "light"
+            ? "bg-white/95 border-gray-200 text-gray-900"
+            : "bg-gray-800/95 border-gray-700 text-white"
+        }`}>
+          <h1 className="text-xl font-bold mb-2">Invalid or missing reset link</h1>
+          <p className={`text-sm mb-6 ${displayColorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>
+            This password reset link is invalid or has expired. Please request a new one from the forgot password page.
+          </p>
+          <Link
+            href="/forgot-password"
+            className={`inline-block font-medium ${displayColorMode === "light" ? "text-blue-600 hover:text-blue-700" : "text-purple-400 hover:text-purple-300"}`}
+          >
+            Request new reset link →
+          </Link>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="w-full min-h-screen flex flex-col items-center justify-center p-4">
-      <Logo width={300} height={200} colorMode={displayColorMode} />
-      <ResetPasswordForm token={token} colorMode={displayColorMode} />
-      <button
-        onClick={() => router.push("/auth/login")}
-        className={`mt-4 text-sm transition-colors ${
-          displayColorMode === "light"
-            ? "text-blue-600 hover:text-blue-700"
-            : "text-blue-400 hover:text-blue-300"
+    <section className="w-full min-h-screen flex flex-col items-center justify-center p-4 app-bg">
+      <Link
+        href="/auth/login"
+        className={`absolute top-4 left-4 text-sm font-medium hover:underline ${
+          displayColorMode === "light" ? "text-blue-600" : "text-purple-400"
         }`}
       >
-        Back to Login
-      </button>
+        ← Back to login
+      </Link>
+      <Logo width={280} height={140} colorMode={displayColorMode} />
+      <ResetPasswordForm token={token} colorMode={displayColorMode} />
     </section>
   );
-};
+}
 
-const ResetPasswordPage = () => {
+export default function Page() {
   return (
-    <Suspense
-      fallback={
-        <section className="w-full min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <p className={displayColorMode === "light" ? "text-gray-600" : "text-gray-400"}>Loading...</p>
-          </div>
-        </section>
-      }
-    >
+    <Suspense fallback={
+      <section className="w-full min-h-screen flex flex-col items-center justify-center app-bg">
+        <div className="animate-pulse text-gray-500">Loading...</div>
+      </section>
+    }>
       <ResetPasswordContent />
     </Suspense>
   );
-};
-
-export default ResetPasswordPage;
+}

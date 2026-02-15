@@ -15,6 +15,7 @@ import Spinner from "@/components/ui/Spinner";
 import Alert from "@/components/ui/Alert";
 import EmptyState from "@/components/ui/EmptyState";
 import { useColorMode } from "@/context/ColorModeContext";
+import useNewTradeForm from "@/hooks/useNewTradeForm";
 
 interface TradeRow {
   id: string;
@@ -53,6 +54,7 @@ const TradesClient: React.FC<TradesClientProps> = ({
 }) => {
   const { colorMode } = useColorMode();
   const router = useRouter();
+   const newTrade = useNewTradeForm();
 
   const [trades, setTrades] = useState<TradeRow[]>(initialTrades);
   const [isLoading, setIsLoading] = useState(false);
@@ -175,9 +177,9 @@ const TradesClient: React.FC<TradesClientProps> = ({
     return result >= 0 ? `+$${result.toLocaleString()}` : `-$${Math.abs(result).toLocaleString()}`;
   };
 
-  const bgColor = colorMode === "light" ? "bg-gray-50" : "bg-gray-900";
+  const bgColor = "app-bg";
   const textColor = colorMode === "light" ? "text-gray-900" : "text-gray-100";
-  const cardBg = colorMode === "light" ? "bg-white" : "bg-gray-800";
+  const cardBg = "app-surface";
   const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
 
   return (
@@ -189,7 +191,7 @@ const TradesClient: React.FC<TradesClientProps> = ({
           <Button
             leftIcon={<FaPlus />}
             variant="primary"
-            onClick={() => router.push("/trades/new")}
+            onClick={newTrade}
           >
             Add Trade
           </Button>
@@ -321,7 +323,7 @@ const TradesClient: React.FC<TradesClientProps> = ({
                   <Button
                     variant="primary"
                     leftIcon={<FaPlus />}
-                    onClick={() => router.push("/trades/new")}
+                    onClick={newTrade}
                   >
                     Add Your First Trade
                   </Button>

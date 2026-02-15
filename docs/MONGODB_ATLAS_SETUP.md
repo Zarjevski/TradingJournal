@@ -119,15 +119,57 @@ This guide will help you connect your Trading Journal application to MongoDB Atl
 - Ensure special characters in password are URL encoded
 - Verify the user has the correct permissions
 
-### SSL/TLS Issues
-- MongoDB Atlas requires SSL connections
-- Prisma handles this automatically, but if you see SSL errors, ensure your connection string includes `?retryWrites=true&w=majority`
+### SSL/TLS Issues - "received fatal alert: InternalError"
 
-### Connection String Format
-Make sure your connection string follows this format:
-```
-mongodb+srv://username:password@cluster.mongodb.net/database-name?retryWrites=true&w=majority
-```
+If you see errors like `received fatal alert: InternalError` or `Server selection timeout: No available servers`, try these solutions:
+
+1. **Check Network Access in MongoDB Atlas:**
+   - Go to MongoDB Atlas → Security → Network Access
+   - Ensure your current IP address is whitelisted
+   - For development, you can temporarily allow all IPs (0.0.0.0/0) - **NOT recommended for production**
+
+2. **Verify Connection String:**
+   - Ensure your connection string uses `mongodb+srv://` (not `mongodb://`)
+   - Check that the password is correctly URL-encoded (special characters)
+   - Verify the cluster name matches your Atlas cluster
+
+3. **Update Connection String Parameters:**
+   Add these parameters to your connection string for better reliability:
+   ```
+   mongodb+srv://username:password@cluster.mongodb.net/trading-journal?retryWrites=true&w=majority&ssl=true&tlsAllowInvalidCertificates=false
+   ```
+
+4. **Check MongoDB Atlas Cluster Status:**
+   - Log into MongoDB Atlas dashboard
+   - Verify your cluster is running (not paused)
+   - Check for any service alerts or maintenance
+
+5. **Firewall/Antivirus:**
+   - Temporarily disable firewall/antivirus to test if it's blocking the connection
+   - Add MongoDB Atlas IP ranges to firewall exceptions if needed
+
+6. **Node.js Version:**
+   - Ensure you're using Node.js 20.9+ (required for Next.js 16)
+   - Older Node.js versions may have TLS compatibility issues
+
+7. **Connection String Format:**
+   Make sure your connection string follows this format:
+   ```
+   mongodb+srv://username:password@cluster.mongodb.net/database-name?retryWrites=true&w=majority
+   ```
+
+8. **Test Connection:**
+   - Try connecting using MongoDB Compass or `mongosh` to verify the connection string works
+   - If it works in Compass but not in the app, the issue is likely with Prisma/Node.js configuration
+
+9. **Regenerate Connection String:**
+   - In MongoDB Atlas, go to Connect → Connect your application
+   - Generate a new connection string
+   - Update your `.env` file with the new string
+
+10. **Restart Development Server:**
+    - After updating `.env`, restart your Next.js development server
+    - Clear `.next` cache: `rm -rf .next` (or `rmdir /s .next` on Windows)
 
 ## Production Considerations
 

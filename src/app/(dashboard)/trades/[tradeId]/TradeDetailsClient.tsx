@@ -5,13 +5,18 @@ import { useColorMode } from "@/context/ColorModeContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { FaSpinner, FaCheckCircle, FaTimesCircle, FaClock, FaUndo } from "react-icons/fa";
+import { FaSpinner, FaCheckCircle, FaTimesCircle, FaClock, FaUndo, FaTrash } from "react-icons/fa";
 import Input from "@/components/common/Input";
 import TextArea from "@/components/common/TextArea";
 import Button from "@/components/common/Button";
 import Badge from "@/components/common/Badge";
+import ConfirmModal from "@/components/common/ConfirmModal";
 import Image from "next/image";
 import showNotification from "@/hooks/useShowNotification";
+import { useUserContext } from "@/context/UserContext";
+import TVChart from "@/components/charts/TVChart";
+import { computeRange, toUnixSec, normalizeSymbolForBinance } from "@/lib/market";
+import type { TVCandle, TVVolumeBar, TVMarker } from "@/components/charts/TVChart";
 import styles from "./TradeDetails.module.css";
 
 interface Exchange {
@@ -66,7 +71,10 @@ interface TradeDetailsClientProps {
 const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialTrade }) => {
   const { colorMode } = useColorMode();
   const router = useRouter();
+  const { refetch: refetchUser } = useUserContext();
   const [trade, setTrade] = useState<Trade>(initialTrade);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     symbol: initialTrade.symbol,
     position: initialTrade.position.toUpperCase(),
@@ -82,6 +90,64 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [chartTf, setChartTf] = useState<"15m" | "1h" | "4h" | "1d">("15m");
+  const [chartRange, setChartRange] = useState<"1D" | "1W" | "1M">("1W");
+  const [chartCandles, setChartCandles] = useState<TVCandle[]>([]);
+  const [chartVolume, setChartVolume] = useState<TVVolumeBar[]>([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [chartError, setChartError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const symbol = normalizeSymbolForBinance(trade.symbol);
+    const { from, to } = computeRange(chartRange);
+
+    setChartLoading(true);
+    setChartError(null);
+    fetch(
+      `/api/market/candles?market=crypto&symbol=${encodeURIComponent(symbol)}&tf=${chartTf}&from=${from}&to=${to}`
+    )
+      .then((res) => {
+        if (!res.ok) return res.json().then((b) => Promise.reject(new Error(b.error ?? "Failed to fetch")));
+        return res.json();
+      })
+      .then((data: Array<{ time: number; open: number; high: number; low: number; close: number; volume?: number }>) => {
+        if (cancelled) return;
+        setChartCandles(data.map((c) => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close })));
+        setChartVolume(
+          data.filter((c) => c.volume != null).map((c) => ({ time: c.time, value: c.volume! }))
+        );
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setChartError(err.message ?? "Failed to load chart");
+          setChartCandles([]);
+          setChartVolume([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setChartLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [trade.symbol, chartTf, chartRange]);
+
+  const chartMarkers: TVMarker[] = (() => {
+    const t = toUnixSec(trade.date);
+    const isLong = trade.position.toUpperCase() === "LONG";
+    return [
+      {
+        time: t,
+        position: isLong ? "belowBar" : "aboveBar",
+        color: isLong ? "#22c55e" : "#ef4444",
+        shape: isLong ? "arrowUp" : "arrowDown",
+        text: "Entry",
+      },
+    ];
+  })();
 
   const getStatusColor = (status: string) => {
     const s = status.toUpperCase();
@@ -173,6 +239,11 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
 
     setIsSaving(true);
     try {
+      let resultNum = parseInt(formData.result, 10);
+      if (formData.status === "LOSS" && !isNaN(resultNum) && resultNum > 0) {
+        resultNum = -resultNum; // losses deduct from balance
+      }
+
       const updateData: any = {
         symbol: formData.symbol.trim(),
         position: formData.position,
@@ -181,7 +252,7 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
         status: formData.status,
         size: parseInt(formData.size, 10),
         reason: formData.reason.trim(),
-        result: parseInt(formData.result, 10),
+        result: resultNum,
         imageURL: formData.imageURL.trim() || null,
       };
 
@@ -208,6 +279,22 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
     showNotification("Form reset to last saved state", "Info");
   };
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await axios.delete("/api/trades/delete", { data: { id: trade.id } });
+      showNotification("Trade deleted", "Success");
+      await refetchUser();
+      router.push("/trades");
+    } catch (error: any) {
+      const msg = error.response?.data?.error || "Failed to delete trade";
+      showNotification(msg, "Error");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   const handleQuickAction = async (action: "WIN" | "LOSS" | "PENDING" | "BREAK_EVEN") => {
     setIsSaving(true);
     try {
@@ -217,6 +304,9 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
 
       if (action === "BREAK_EVEN") {
         updateData.result = 0;
+      } else if (action === "LOSS" && trade.result > 0) {
+        // So that balance is deducted, store loss as negative
+        updateData.result = -trade.result;
       }
 
       const response = await axios.patch(`/api/trades/${trade.id}`, updateData);
@@ -295,6 +385,61 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
             variant="solid"
           />
         </div>
+      </div>
+
+      {/* Chart Section */}
+      <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`} style={{ marginBottom: "1.5rem" }}>
+        <h2 className={styles.cardTitle}>Chart</h2>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <span className={`text-sm font-medium ${colorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>Timeframe:</span>
+          {(["15m", "1h", "4h", "1d"] as const).map((tf) => (
+            <button
+              key={tf}
+              type="button"
+              onClick={() => setChartTf(tf)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                chartTf === tf
+                  ? colorMode === "light"
+                    ? "bg-blue-600 text-white"
+                    : "bg-purple-600 text-white"
+                  : colorMode === "light"
+                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+            >
+              {tf}
+            </button>
+          ))}
+          <span className={`text-sm font-medium ml-2 ${colorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>Range:</span>
+          {(["1D", "1W", "1M"] as const).map((range) => (
+            <button
+              key={range}
+              type="button"
+              onClick={() => setChartRange(range)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                chartRange === range
+                  ? colorMode === "light"
+                    ? "bg-blue-600 text-white"
+                    : "bg-purple-600 text-white"
+                  : colorMode === "light"
+                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+            >
+              {range}
+            </button>
+          ))}
+        </div>
+        {chartError && (
+          <p className="text-sm text-red-500 mb-2">{chartError}</p>
+        )}
+        <TVChart
+          candles={chartCandles}
+          volume={chartVolume}
+          markers={chartMarkers}
+          height={420}
+          loading={chartLoading}
+        />
       </div>
 
       <div className={styles.content}>
@@ -445,10 +590,17 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
                 className={styles.quickActionButton}
               />
               <Button
-                text="Break Even (Result = 0)"
+                text="Break Even"
                 onClick={() => handleQuickAction("BREAK_EVEN")}
                 disabled={isSaving}
                 variant="secondary"
+                className={styles.quickActionButton}
+              />
+              <Button
+                text="Delete trade"
+                onClick={() => setShowDeleteModal(true)}
+                variant="danger"
+                icon={FaTrash}
                 className={styles.quickActionButton}
               />
             </div>
@@ -719,6 +871,29 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
           )}
         </div>
       </div>
+
+      <ConfirmModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+        <div className={`p-6 ${colorMode === "light" ? "bg-white" : "bg-gray-800"}`}>
+          <h2 className="text-xl font-bold mb-4">Delete trade</h2>
+          <p className={`mb-4 ${colorMode === "light" ? "text-gray-700" : "text-gray-300"}`}>
+            Remove this trade permanently? The exchange balance will be adjusted to reverse this trade&apos;s P/L.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <Button
+              text="Cancel"
+              onClick={() => setShowDeleteModal(false)}
+              variant="secondary"
+            />
+            <Button
+              text={isDeleting ? "Deleting..." : "Delete trade"}
+              onClick={handleDelete}
+              disabled={isDeleting}
+              variant="danger"
+              icon={isDeleting ? FaSpinner : FaTrash}
+            />
+          </div>
+        </div>
+      </ConfirmModal>
     </div>
   );
 };

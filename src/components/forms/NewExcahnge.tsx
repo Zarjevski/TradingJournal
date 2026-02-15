@@ -4,7 +4,7 @@ import Image from "next/image";
 import Button from "../common/Button";
 import FormHeader from "./FormHeader";
 import Input from "../common/Input";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useModalContext } from "@/context/ModalContext";
 import { useUserContext } from "@/context/UserContext";

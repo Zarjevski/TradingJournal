@@ -282,6 +282,32 @@ export async function PATCH(
       );
     }
 
+    // Adjust exchange balance when result or exchange changes
+    const newResult = (dataToUpdate.result as number) ?? existingTrade.result;
+    const newExchangeId = (dataToUpdate.exchangeID as string) ?? existingTrade.exchangeID;
+    if (newExchangeId === existingTrade.exchangeID) {
+      const delta = newResult - existingTrade.result;
+      if (delta !== 0) {
+        await prisma.exchange.update({
+          where: { id: existingTrade.exchangeID },
+          data: { balance: { increment: delta } },
+        });
+      }
+    } else {
+      if (existingTrade.result !== 0) {
+        await prisma.exchange.update({
+          where: { id: existingTrade.exchangeID },
+          data: { balance: { increment: -existingTrade.result } },
+        });
+      }
+      if (newResult !== 0) {
+        await prisma.exchange.update({
+          where: { id: newExchangeId },
+          data: { balance: { increment: newResult } },
+        });
+      }
+    }
+
     const updatedTrade = await prisma.trade.update({
       where: { id },
       data: dataToUpdate,

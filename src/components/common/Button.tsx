@@ -1,5 +1,5 @@
 import React from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { motion as m } from "framer-motion";
 import { IconType } from "react-icons";
 
@@ -37,10 +37,10 @@ const Button: React.FC<ButtonProps> = ({
         ? "bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400"
         : "bg-gray-700 text-white hover:bg-gray-600 active:bg-gray-500";
     }
-    // primary
+    // primary: blue (light), purple (dark)
     return colorMode === "light"
-      ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 active:from-blue-800 active:to-blue-900 shadow-md hover:shadow-lg"
-      : "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 active:from-blue-700 active:to-blue-800 shadow-md hover:shadow-lg";
+      ? "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-md hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-transparent"
+      : "bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 shadow-md hover:shadow-lg focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent";
   };
 
   return (

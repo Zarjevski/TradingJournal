@@ -203,8 +203,8 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
         {
           label: "Cumulative P&L",
           data: data.cumulativePnLSeries.map((p) => p.value),
-          borderColor: colorMode === "light" ? "#3182ce" : "#63b3ed",
-          backgroundColor: colorMode === "light" ? "#3182ce20" : "#63b3ed20",
+          borderColor: colorMode === "light" ? "#2563eb" : "#7c3aed",       // blue in light, purple in dark
+          backgroundColor: colorMode === "light" ? "#2563eb20" : "#7c3aed20",
           fill: true,
           tension: 0.4,
         },
@@ -252,13 +252,13 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           backgroundColor: [
             "#22c55e",
             "#ef4444",
-            "#3b82f6",
+            colorMode === "light" ? "#3b82f6" : "#7c3aed",
             "#6b7280",
           ],
         },
       ],
     };
-  }, [data]);
+  }, [data, colorMode]);
 
   const chartOptions = {
     responsive: true,
@@ -337,16 +337,17 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
       ]
     : [];
 
-  const bgColor = colorMode === "light" ? "bg-gray-50" : "bg-gray-900";
+  const bgColor = "app-bg";
   const textColor = colorMode === "light" ? "text-gray-900" : "text-gray-100";
-  const cardBg = colorMode === "light" ? "bg-white" : "bg-gray-800";
+  const cardBg = "app-surface";
   const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
 
   const getStatusColor = (status: string): string => {
     const s = status.toUpperCase();
     if (s === "WIN") return "bg-green-500";
     if (s === "LOSS") return "bg-red-500";
-    if (s === "BREAK_EVEN") return "bg-blue-500";
+    if (s === "BREAK_EVEN")
+      return colorMode === "light" ? "bg-blue-500" : "bg-purple-500";
     if (s === "CANCELED") return "bg-gray-500";
     return "bg-gray-500";
   };

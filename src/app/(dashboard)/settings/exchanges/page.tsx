@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import Button from "@/components/common/Button";
 import Image from "next/image";
 import useNewExcahngeForm from "@/hooks/useNewExchangeForm";
@@ -57,7 +57,7 @@ const Page = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="h-full w-full p-6 overflow-y-auto"
+      className="h-full w-full p-6 overflow-y-auto app-bg"
     >
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Exchanges</h1>
@@ -70,17 +70,19 @@ const Page = () => {
 
       {/* Total Balance Card */}
       <div
-        className={`mb-6 rounded-lg border shadow-lg backdrop-blur-sm p-6 ${
+        className={`mb-6 rounded-lg border shadow-lg backdrop-blur-sm p-6 app-surface ${
           colorMode === "light"
-            ? "bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200"
-            : "bg-gradient-to-r from-blue-900/30 to-blue-800/30 border-blue-700"
+            ? "border-blue-200"
+            : "border-purple-700"
         }`}
       >
         <div className="flex items-center gap-3">
           <div className={`p-3 rounded-lg ${
-            colorMode === "light" ? "bg-blue-500/20" : "bg-blue-500/30"
+            colorMode === "light" ? "bg-blue-500/20" : "bg-purple-700/30"
           }`}>
-            <FaDollarSign className="text-2xl text-blue-500" />
+            <FaDollarSign className={`text-2xl ${
+              colorMode === "light" ? "text-blue-500" : "text-purple-400"
+            }`} />
           </div>
           <div>
             <p className={`text-sm ${

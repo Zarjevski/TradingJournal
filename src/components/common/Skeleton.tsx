@@ -1,5 +1,5 @@
 import React from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 
 interface SkeletonProps {
   width: string;

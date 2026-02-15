@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { MdOutlineFileUpload, MdDelete } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import { useUserContext } from "@/context/UserContext";
@@ -159,7 +159,7 @@ const Page = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="w-full h-full p-6 overflow-y-auto"
+      className="w-full h-full p-6 overflow-y-auto app-bg"
     >
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">User Information</h1>

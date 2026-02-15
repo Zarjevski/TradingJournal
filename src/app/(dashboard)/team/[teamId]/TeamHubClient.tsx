@@ -36,7 +36,7 @@ export default function TeamHubClient({ teamId }: TeamHubClientProps) {
   const [currentUserRole, setCurrentUserRole] = useState<string>("");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   
-  const bgColor = colorMode === "light" ? "bg-gray-50" : "bg-gray-900";
+  const bgColor = "app-bg";
   const textColor = colorMode === "light" ? "text-gray-900" : "text-gray-100";
 
   useEffect(() => {
@@ -183,6 +183,11 @@ export default function TeamHubClient({ teamId }: TeamHubClientProps) {
       id: "trades",
       label: "Trades",
       content: <TradesTab teamId={teamId} />,
+    },
+    {
+      id: "leaderboard",
+      label: "Leaderboard",
+      content: <LeaderboardTab teamId={teamId} />,
     },
     {
       id: "rooms",
@@ -807,6 +812,7 @@ function MembersTab({ teamId, onUpdate }: { teamId: string; onUpdate: () => void
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("MEMBER");
+  const [lastInviteLink, setLastInviteLink] = useState<string | null>(null);
   const [isInviting, setIsInviting] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string>("");
 
@@ -837,10 +843,15 @@ function MembersTab({ teamId, onUpdate }: { teamId: string; onUpdate: () => void
 
     try {
       setIsInviting(true);
-      await axios.post(`/api/teams/${teamId}/invites`, {
+      const { data } = await axios.post(`/api/teams/${teamId}/invites`, {
         email: inviteEmail.trim(),
         role: inviteRole,
       });
+      const token = data?.token;
+      if (token) {
+        const url = typeof window !== "undefined" ? `${window.location.origin}/team/invite/${token}` : "";
+        setLastInviteLink(url);
+      }
       setShowInviteModal(false);
       setInviteEmail("");
       setInviteRole("MEMBER");
@@ -886,8 +897,27 @@ function MembersTab({ teamId, onUpdate }: { teamId: string; onUpdate: () => void
 
   const isAdmin = currentUserRole === "OWNER" || currentUserRole === "ADMIN";
 
+  const copyInviteLink = () => {
+    if (lastInviteLink) {
+      navigator.clipboard.writeText(lastInviteLink);
+      alert("Invite link copied. Send it to the person you invited so they can accept.");
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {lastInviteLink && (
+        <div className={`p-4 rounded-lg border flex flex-wrap items-center justify-between gap-2 ${colorMode === "light" ? "bg-green-50 border-green-200" : "bg-green-900/20 border-green-700"}`}>
+          <span className={colorMode === "light" ? "text-green-800" : "text-green-200"}>
+            Invitation sent. Share this link with them so they can accept (they must be logged in with that email):
+          </span>
+          <div className="flex items-center gap-2">
+            <code className={`text-xs truncate max-w-[200px] ${colorMode === "light" ? "text-green-700" : "text-green-300"}`}>{lastInviteLink}</code>
+            <Button size="sm" onClick={copyInviteLink}>Copy link</Button>
+            <Button variant="ghost" size="sm" onClick={() => setLastInviteLink(null)}>Dismiss</Button>
+          </div>
+        </div>
+      )}
       {isAdmin && (
         <div className="flex justify-end">
           <Button onClick={() => setShowInviteModal(true)}>Invite Member</Button>
@@ -971,6 +1001,137 @@ function MembersTab({ teamId, onUpdate }: { teamId: string; onUpdate: () => void
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+// Leaderboard Tab
+function LeaderboardTab({ teamId }: { teamId: string }) {
+  const { colorMode } = useColorMode();
+  const [leaders, setLeaders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const isDark = colorMode === "dark";
+  const cardBg = isDark ? "bg-gray-800" : "bg-white";
+  const borderColor = isDark ? "border-gray-700" : "border-gray-200";
+  const textMuted = isDark ? "text-gray-400" : "text-gray-600";
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const res = await axios.get(`/api/teams/${teamId}/leaderboard`);
+        setLeaders(res.data || []);
+      } catch (err: any) {
+        console.error("Error fetching leaderboard:", err);
+        setError(
+          err.response?.data?.error || "Failed to load leaderboard"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, [teamId]);
+
+  if (isLoading) return <Spinner />;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <h2 className="text-xl font-semibold">Team Leaderboard</h2>
+        <FaCrown className={isDark ? "text-yellow-400" : "text-yellow-500"} />
+      </div>
+
+      {error && (
+        <Alert variant="error">
+          {error}
+        </Alert>
+      )}
+
+      {(!leaders || leaders.length === 0) ? (
+        <p className={textMuted}>No shared trades yet. Share trades to build the leaderboard.</p>
+      ) : (
+        <Card className={`${cardBg} ${borderColor} border`}>
+          <div className="p-4 overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className={isDark ? "bg-gray-800" : "bg-gray-50"}>
+                <tr>
+                  <th className="px-3 py-2 text-left">Rank</th>
+                  <th className="px-3 py-2 text-left">Trader</th>
+                  <th className="px-3 py-2 text-right">Total P&L</th>
+                  <th className="px-3 py-2 text-right">Trades Shared</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaders.map((entry, index) => (
+                  <tr
+                    key={entry.userId}
+                    className={
+                      index === 0
+                        ? isDark
+                          ? "bg-yellow-900/20"
+                          : "bg-yellow-50"
+                        : index % 2 === 0
+                        ? isDark
+                          ? "bg-gray-900"
+                          : "bg-white"
+                        : isDark
+                        ? "bg-gray-800"
+                        : "bg-gray-50"
+                    }
+                  >
+                    <td className="px-3 py-2 font-semibold">
+                      #{index + 1}
+                    </td>
+                    <td className="px-3 py-2 flex items-center gap-3">
+                      {entry.photoURL ? (
+                        <img
+                          src={entry.photoURL}
+                          alt={`${entry.firstName} ${entry.lastName}`}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white ${
+                          isDark ? "bg-purple-600" : "bg-blue-600"
+                        }`}>
+                          {entry.firstName?.[0] ?? "U"}
+                          {entry.lastName?.[0] ?? ""}
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-medium">
+                          {entry.firstName} {entry.lastName}
+                        </div>
+                        <div className={`text-xs ${textMuted}`}>
+                          {entry.email}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-right font-semibold">
+                      {entry.totalPnL >= 0 ? (
+                        <span className="text-green-500">
+                          +${entry.totalPnL.toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="text-red-500">
+                          -${Math.abs(entry.totalPnL).toLocaleString()}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {entry.tradesShared}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

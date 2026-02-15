@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import ForgotPasswordForm from "@/components/forms/ForgotPassword";
 import Logo from "@/components/common/Logo";
 

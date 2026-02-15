@@ -41,6 +41,18 @@ export async function DELETE(request: Request) {
       );
     }
 
+    // Reverse P&L on the exchange before deleting (so balance is correct)
+    if (trade.result !== 0) {
+      await prisma.exchange.update({
+        where: { id: trade.exchangeID },
+        data: {
+          balance: {
+            increment: -trade.result,
+          },
+        },
+      });
+    }
+
     await prisma.trade.delete({
       where: { id: tradeId },
     });

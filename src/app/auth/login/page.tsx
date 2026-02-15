@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import Login from "@/components/forms/Login";
 import Logo from "@/components/common/Logo";
 import Register from "@/components/forms/Register";

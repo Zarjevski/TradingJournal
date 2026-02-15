@@ -24,9 +24,11 @@ export function ColorModeProvider({ children }: { children: React.ReactNode }) {
     if (saved && (saved === "light" || saved === "dark")) {
       setColorModeState(saved);
       document.documentElement.classList.toggle("dark", saved === "dark");
+      document.documentElement.setAttribute("data-theme", saved);
     } else {
       // Default to dark mode
       document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
     }
   }, []);
 
@@ -35,6 +37,7 @@ export function ColorModeProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.setItem("colorMode", mode);
       document.documentElement.classList.toggle("dark", mode === "dark");
+      document.documentElement.setAttribute("data-theme", mode);
     }
   };
 
@@ -47,6 +50,7 @@ export function ColorModeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (mounted && typeof window !== "undefined") {
       document.documentElement.classList.toggle("dark", colorMode === "dark");
+      document.documentElement.setAttribute("data-theme", colorMode);
     }
   }, [colorMode, mounted]);
 

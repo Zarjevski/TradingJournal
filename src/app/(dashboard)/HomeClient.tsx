@@ -52,10 +52,10 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
     return "Risk-On";
   };
 
-  const bgColor = colorMode === "light" ? "bg-gray-50" : "bg-gray-900";
+  const bgColor = "app-bg";
   const textColor = colorMode === "light" ? "text-gray-900" : "text-gray-100";
   const subTextColor = colorMode === "light" ? "text-gray-600" : "text-gray-400";
-  const cardBg = colorMode === "light" ? "bg-white" : "bg-gray-800";
+  const cardBg = "app-surface";
   const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
   
   // Improved layout - better spacing and organization
@@ -92,7 +92,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
                     Total Balance
                   </p>
                   <h2 className="text-2xl font-bold">
-                    ${homeData.totalBalance.toLocaleString()}
+                    ${homeData.totalBalance.toLocaleString("en-US")}
                   </h2>
                 </div>
               </div>
@@ -180,7 +180,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
                       homeData.todayPnL >= 0 ? "text-green-500" : "text-red-500"
                     }`}
                   >
-                    ${homeData.todayPnL.toLocaleString()}
+                    ${homeData.todayPnL.toLocaleString("en-US")}
                   </h2>
                 </div>
               </div>
@@ -194,7 +194,12 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Discipline & Focus */}
             <Card className={`${cardBg} ${borderColor} border`}>
-              <h2 className="text-xl font-semibold mb-4">Discipline & Focus</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Discipline & Focus</h2>
+                <Button variant="primary" size="sm" leftIcon={<FaPlus />} onClick={newRule}>
+                  Add rule
+                </Button>
+              </div>
               <div className="space-y-4">
                 {/* Rule of the Day */}
                 <div
@@ -330,7 +335,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
                           onClick={() => router.push(`/trades/${trade.id}`)}
                         >
                           <Td>
-                            {new Date(trade.date).toLocaleDateString()}
+                            {new Date(trade.date).toLocaleDateString("en-US")}
                           </Td>
                           <Td>
                         <Link
@@ -352,7 +357,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
                               trade.result >= 0 ? "text-green-500" : "text-red-500"
                             }`}
                           >
-                            ${trade.result.toLocaleString()}
+                            ${trade.result.toLocaleString("en-US")}
                           </Td>
                         </Tr>
                       ))}

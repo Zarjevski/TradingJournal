@@ -53,8 +53,7 @@ export async function PATCH(
 ) {
   try {
     const { teamId } = await params;
-    const { member, response } = await requireTeamAdmin(teamId);
-    if (response) return response;
+    await requireTeamAdmin(teamId);
 
     const body = await request.json();
     const { imageURL, name, description } = body;

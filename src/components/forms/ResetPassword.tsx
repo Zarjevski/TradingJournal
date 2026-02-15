@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import axios from "axios";
@@ -11,15 +12,15 @@ import { IoLockClosedOutline, IoCheckmarkCircle } from "react-icons/io5";
 
 interface ResetPasswordProps {
   token: string;
-  colorMode: string;
+  colorMode?: string;
 }
 
 const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
   token,
-  colorMode,
+  colorMode: colorModeProp,
 }) => {
-  const { colorMode: chakraColorMode } = useColorMode();
-  const actualColorMode = colorMode || chakraColorMode;
+  const { colorMode: contextColorMode } = useColorMode();
+  const actualColorMode = colorModeProp ?? contextColorMode;
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -91,6 +92,14 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
             Your password has been successfully reset. You will be redirected to
             the login page shortly.
           </p>
+          <Link
+            href="/auth/login"
+            className={`inline-block mt-4 text-sm font-medium ${
+              actualColorMode === "light" ? "text-blue-600 hover:text-blue-700" : "text-purple-400 hover:text-purple-300"
+            }`}
+          >
+            Go to login now →
+          </Link>
         </div>
       </motion.div>
     );
@@ -114,11 +123,11 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
             className={`p-3 rounded-full ${
               actualColorMode === "light"
                 ? "bg-blue-100"
-                : "bg-blue-900/30"
+                : "bg-purple-900/30"
             }`}
           >
             <IoLockClosedOutline className={`w-8 h-8 ${
-              colorMode === "light" ? "text-blue-600" : "text-blue-400"
+              actualColorMode === "light" ? "text-blue-600" : "text-purple-400"
             }`} />
           </div>
         </div>
@@ -171,13 +180,15 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
         />
       </div>
 
-      <Button
-        text={isLoading ? "Resetting..." : "Reset Password"}
-        width="w-full"
-        type="submit"
-        disabled={isLoading}
-        variant="primary"
-      />
+      <div className="mt-6">
+        <Button
+          text={isLoading ? "Resetting..." : "Reset Password"}
+          width="w-full"
+          type="submit"
+          disabled={isLoading}
+          variant="primary"
+        />
+      </div>
     </motion.form>
   );
 };

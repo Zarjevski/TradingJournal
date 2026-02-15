@@ -3,7 +3,7 @@ import ChooseExchange from "../trades/ChooseExchange";
 import FormHeader from "./FormHeader";
 import TradeDetails from "../trades/TradeDetails";
 import axios from "axios";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { useModalContext } from "@/context/ModalContext";
 import { useUserContext } from "@/context/UserContext";
 import { spring } from "@/utils/framerEffects";
@@ -45,11 +45,19 @@ const NewTrade = () => {
 
     setIsLoading(true);
     try {
+      // For losses: store result as negative so account balance is deducted
+      let resultValue = formData.result.trim() === "" ? "0" : formData.result;
+      if (formData.status?.toLowerCase() === "loss" && resultValue) {
+        const r = parseInt(resultValue, 10);
+        if (!isNaN(r) && r > 0) resultValue = String(-r);
+      }
+
       const response = await axios.post("/api/trades/new", {
         exchangeId: exchange.id,
         exchangeName: exchange.title,
         formData: {
           ...formData,
+          result: resultValue,
           exchangeName: exchange.title,
         },
       });

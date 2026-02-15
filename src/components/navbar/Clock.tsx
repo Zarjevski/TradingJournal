@@ -1,6 +1,6 @@
 import React from "react";
 import Badge from "../common/Badge";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 import { motion } from "framer-motion";
 import { 
   FaClock, 

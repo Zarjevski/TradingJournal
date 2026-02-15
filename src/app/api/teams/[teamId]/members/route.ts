@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireTeamAdmin, badRequestResponse, notFoundResponse } from "@/lib/teamAuth";
+import { requireTeamMember, requireTeamAdmin, badRequestResponse, notFoundResponse } from "@/lib/teamAuth";
 
 export async function GET(
   request: Request,
@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { teamId } = await params;
-    await requireTeamAdmin(teamId);
+    await requireTeamMember(teamId);
 
     const members = await prisma.teamMember.findMany({
       where: { teamID: teamId },

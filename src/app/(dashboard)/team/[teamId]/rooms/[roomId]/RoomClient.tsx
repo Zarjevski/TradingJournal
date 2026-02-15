@@ -17,6 +17,9 @@ import {
 } from "@/lib/webrtc";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import TVChart from "@/components/charts/TVChart";
+import { computeRange, normalizeSymbolForBinance } from "@/lib/market";
+import type { TVCandle, TVVolumeBar } from "@/components/charts/TVChart";
 import {
   FaVideo,
   FaVideoSlash,
@@ -31,6 +34,9 @@ interface RoomClientProps {
   roomId: string;
   teamId: string;
   roomName: string;
+  sharedSymbol?: string;
+  sharedMarket?: string;
+  sharedTf?: string;
 }
 
 interface Signal {
@@ -53,11 +59,23 @@ export default function RoomClient({
   roomId,
   teamId,
   roomName,
+  sharedSymbol: initialSharedSymbol,
+  sharedMarket: initialSharedMarket,
+  sharedTf: initialSharedTf,
 }: RoomClientProps) {
   const router = useRouter();
   const { colorMode } = useColorMode();
   const { user } = useUserContext();
   const userId = user?.id;
+
+  const [sharedSymbol, setSharedSymbol] = useState(initialSharedSymbol ?? "BTC");
+  const [sharedTf, setSharedTf] = useState(initialSharedTf ?? "15m");
+  const [chartCandles, setChartCandles] = useState<TVCandle[]>([]);
+  const [chartVolume, setChartVolume] = useState<TVVolumeBar[]>([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [chartError, setChartError] = useState<string | null>(null);
+  const [chartSymbolInput, setChartSymbolInput] = useState(initialSharedSymbol ?? "BTC");
+  const [isSavingChart, setIsSavingChart] = useState(false);
 
   // Media state
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -83,6 +101,56 @@ export default function RoomClient({
 
   // Compute active video track (screen > camera > null)
   const activeVideoTrack = screenTrack || cameraVideoTrack || null;
+
+  const fetchChart = () => {
+    const symbol = normalizeSymbolForBinance(sharedSymbol);
+    const { from, to } = computeRange("1W");
+    setChartLoading(true);
+    setChartError(null);
+    fetch(
+      `/api/market/candles?market=crypto&symbol=${encodeURIComponent(symbol)}&tf=${sharedTf}&from=${from}&to=${to}`
+    )
+      .then((res) => {
+        if (!res.ok) return res.json().then((b) => Promise.reject(new Error(b.error ?? "Failed to fetch")));
+        return res.json();
+      })
+      .then((data: Array<{ time: number; open: number; high: number; low: number; close: number; volume?: number }>) => {
+        setChartCandles(data.map((c) => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close })));
+        setChartVolume(
+          data.filter((c) => c.volume != null).map((c) => ({ time: c.time, value: c.volume! }))
+        );
+      })
+      .catch((err) => {
+        setChartError(err.message ?? "Failed to load chart");
+        setChartCandles([]);
+        setChartVolume([]);
+      })
+      .finally(() => setChartLoading(false));
+  };
+
+  useEffect(() => {
+    if (!sharedSymbol?.trim()) return;
+    fetchChart();
+  }, [sharedSymbol, sharedTf]);
+
+  const handleApplyChart = async () => {
+    const sym = chartSymbolInput.trim() || "BTC";
+    setSharedSymbol(sym);
+    setIsSavingChart(true);
+    try {
+      await axios.patch(`/api/teams/${teamId}/rooms/${roomId}`, {
+        sharedSymbol: normalizeSymbolForBinance(sym),
+        sharedMarket: "crypto",
+        sharedTf: sharedTf,
+      });
+      setSharedSymbol(sym);
+      fetchChart();
+    } catch {
+      setChartError("Failed to save chart settings");
+    } finally {
+      setIsSavingChart(false);
+    }
+  };
 
   // Initialize media and join room
   useEffect(() => {
@@ -364,22 +432,23 @@ export default function RoomClient({
       if (!pc) {
         pc = createPeerConnection();
         peerConnectionsRef.current.set(remoteUserId, pc);
+        const connection = pc;
 
         // Add local tracks (use active video track)
         if (localStream) {
           // Add audio tracks
           localStream.getAudioTracks().forEach((track) => {
-            pc.addTrack(track, localStream);
+            connection.addTrack(track, localStream);
           });
 
           // Add active video track (screen or camera)
           if (activeVideoTrack) {
-            pc.addTrack(activeVideoTrack, localStream);
+            connection.addTrack(activeVideoTrack, localStream);
           }
         }
 
         // Handle remote stream
-        pc.ontrack = (event) => {
+        connection.ontrack = (event) => {
           const stream = event.streams[0];
           setRemotePeers((prev) => {
             const newMap = new Map(prev);
@@ -387,7 +456,7 @@ export default function RoomClient({
             newMap.set(remoteUserId, {
               userId: remoteUserId,
               stream,
-              pc,
+              pc: connection,
               isSharing: existingPeer?.isSharing || remoteSharingStatusRef.current.get(remoteUserId) || false,
             });
             return newMap;
@@ -395,7 +464,7 @@ export default function RoomClient({
         };
 
         // Handle ICE candidates
-        pc.onicecandidate = (event) => {
+        connection.onicecandidate = (event) => {
           if (event.candidate) {
             axios.post(`/api/rooms/${roomId}/signal`, {
               type: "ice",
@@ -406,22 +475,29 @@ export default function RoomClient({
         };
 
         // Handle connection state changes
-        pc.onconnectionstatechange = () => {
+        connection.onconnectionstatechange = () => {
           if (
-            pc.connectionState === "failed" ||
-            pc.connectionState === "disconnected" ||
-            pc.connectionState === "closed"
+            connection.connectionState === "failed" ||
+            connection.connectionState === "disconnected" ||
+            connection.connectionState === "closed"
           ) {
             removePeer(remoteUserId);
           }
         };
       }
 
-      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const conn = peerConnectionsRef.current.get(remoteUserId);
+      if (!conn) return;
+
+      // Only set remote offer when in "stable" (avoid duplicate/stale offers).
+      if (conn.signalingState !== "stable") {
+        return;
+      }
+      await conn.setRemoteDescription(new RTCSessionDescription(offer));
 
       // Create answer
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
+      const answer = await conn.createAnswer();
+      await conn.setLocalDescription(answer);
 
       // Send answer
       await axios.post(`/api/rooms/${roomId}/signal`, {
@@ -434,10 +510,15 @@ export default function RoomClient({
     }
   };
 
-  // Handle incoming answer
+  // Handle incoming answer (only set when we're the offerer waiting for an answer)
   const handleAnswer = async (remoteUserId: string, answer: RTCSessionDescriptionInit) => {
     const pc = peerConnectionsRef.current.get(remoteUserId);
     if (!pc) return;
+
+    // Only set remote answer when in "have-local-offer". Ignore if already stable (duplicate/stale answer).
+    if (pc.signalingState !== "have-local-offer") {
+      return;
+    }
 
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(answer));
@@ -449,7 +530,7 @@ export default function RoomClient({
   // Handle ICE candidate
   const handleICE = async (remoteUserId: string, candidate: RTCIceCandidateInit) => {
     const pc = peerConnectionsRef.current.get(remoteUserId);
-    if (!pc) return;
+    if (!pc || pc.signalingState === "closed") return;
 
     try {
       await pc.addIceCandidate(new RTCIceCandidate(candidate));
@@ -608,9 +689,9 @@ export default function RoomClient({
     router.push(`/team/${teamId}`);
   };
 
-  const bgColor = colorMode === "light" ? "bg-gray-50" : "bg-gray-900";
+  const bgColor = "app-bg";
   const textColor = colorMode === "light" ? "text-gray-900" : "text-gray-100";
-  const cardBg = colorMode === "light" ? "bg-white" : "bg-gray-800";
+  const cardBg = "app-surface";
   const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
 
   if (isJoining) {
@@ -674,7 +755,9 @@ export default function RoomClient({
 
   return (
     <div className={`min-h-screen ${bgColor} ${textColor} p-4`}>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Videos + Controls */}
+        <div className="lg:col-span-2 space-y-4">
         {/* Header */}
         <div className="mb-4 flex justify-between items-center">
           <div>
@@ -775,6 +858,67 @@ export default function RoomClient({
             </Button>
           )}
         </div>
+        </div>
+
+        {/* Right: Shared Chart */}
+        <div className={`${cardBg} ${borderColor} border rounded-lg p-4 h-fit`}>
+          <h2 className="text-lg font-semibold mb-3">Shared Chart</h2>
+          <div className="space-y-3 mb-3">
+            <div>
+              <label className={`block text-sm font-medium mb-1 ${colorMode === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                Symbol
+              </label>
+              <input
+                type="text"
+                value={chartSymbolInput}
+                onChange={(e) => setChartSymbolInput(e.target.value)}
+                placeholder="e.g. BTC or BTCUSDT"
+                className={`w-full px-3 py-2 rounded-lg border text-sm ${
+                  colorMode === "light"
+                    ? "bg-white border-gray-300 text-gray-900"
+                    : "bg-gray-800 border-gray-600 text-gray-100"
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`block text-sm font-medium mb-1 ${colorMode === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                Timeframe
+              </label>
+              <select
+                value={sharedTf}
+                onChange={(e) => setSharedTf(e.target.value)}
+                className={`w-full px-3 py-2 rounded-lg border text-sm ${
+                  colorMode === "light"
+                    ? "bg-white border-gray-300 text-gray-900"
+                    : "bg-gray-800 border-gray-600 text-gray-100"
+                }`}
+              >
+                <option value="1m">1m</option>
+                <option value="5m">5m</option>
+                <option value="15m">15m</option>
+                <option value="1h">1h</option>
+                <option value="4h">4h</option>
+                <option value="1d">1d</option>
+              </select>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleApplyChart}
+              disabled={isSavingChart}
+              className="w-full"
+            >
+              {isSavingChart ? "Saving…" : "Apply"}
+            </Button>
+          </div>
+          {chartError && <p className="text-sm text-red-500 mb-2">{chartError}</p>}
+          <TVChart
+            candles={chartCandles}
+            volume={chartVolume}
+            height={360}
+            loading={chartLoading}
+          />
+        </div>
       </div>
     </div>
   );
@@ -795,6 +939,7 @@ function RemoteVideo({
   borderColor: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     if (videoRef.current) {

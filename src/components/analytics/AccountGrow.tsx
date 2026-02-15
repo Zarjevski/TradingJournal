@@ -143,10 +143,10 @@ const AccountGrow = ({ colorMode, trades, isLoading = false }: AccountGrowProps)
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className={`h-full rounded-lg border shadow-lg backdrop-blur-sm ${
+      className={`h-full rounded-lg border shadow-lg backdrop-blur-sm app-surface ${
         colorMode === "light"
-          ? "bg-white/95 border-gray-200 text-gray-900"
-          : "bg-gray-800/95 border-gray-700 text-white"
+          ? "border-gray-200 text-gray-900"
+          : "border-gray-700 text-white"
       }`}
     >
       <header className={`p-4 border-b ${

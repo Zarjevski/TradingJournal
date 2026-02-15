@@ -1,5 +1,5 @@
 import React from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@/context/ColorModeContext";
 
 interface InputProps {
   label?: string;
@@ -48,7 +48,7 @@ const Input: React.FC<InputProps> = ({
             ? "border-red-500 focus:ring-red-500 focus:border-red-500"
             : colorMode === "light"
             ? "bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900"
-            : "bg-gray-800 border-gray-600 focus:border-blue-500 focus:ring-blue-500 text-white"
+            : "bg-gray-800 border-gray-600 focus:border-purple-500 focus:ring-purple-500 text-white"
         } placeholder:${colorMode === "light" ? "text-gray-400" : "text-gray-500"}`}
         placeholder={placeholder}
       />

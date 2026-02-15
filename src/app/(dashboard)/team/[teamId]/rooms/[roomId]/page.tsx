@@ -24,6 +24,9 @@ export default async function RoomPage({ params }: PageProps) {
         id: true,
         name: true,
         teamID: true,
+        sharedSymbol: true,
+        sharedMarket: true,
+        sharedTf: true,
       },
     });
 
@@ -35,7 +38,16 @@ export default async function RoomPage({ params }: PageProps) {
       redirect(`/team/${teamId}`);
     }
 
-    return <RoomClient roomId={roomId} teamId={teamId} roomName={room.name} />;
+    return (
+      <RoomClient
+        roomId={roomId}
+        teamId={teamId}
+        roomName={room.name}
+        sharedSymbol={room.sharedSymbol ?? undefined}
+        sharedMarket={room.sharedMarket ?? undefined}
+        sharedTf={room.sharedTf ?? undefined}
+      />
+    );
   } catch (error) {
     redirect(`/team/${teamId}`);
   }
