@@ -1,14 +1,6 @@
 [
-    {
-        "title": "user information",
-        "link": "/information"
-    },
-    {
-        "title": "exchanges",
-        "link": "/exchanges"
-    },
-    {
-        "title": "delete account",
-        "link": "/delete"
-    }
+  {"title": "user information", "link": "/information"},
+  {"title": "privacy", "link": "/privacy"},
+  {"title": "exchanges", "link": "/exchanges"},
+  {"title": "delete account", "link": "/delete"}
 ]

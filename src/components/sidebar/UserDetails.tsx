@@ -16,9 +16,11 @@ import Button from "@/components/ui/Button";
 const UserDetails = ({
   isOpen,
   setIsOpen,
+  hideToggle = false,
 }: {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  hideToggle?: boolean;
 }) => {
   const { colorMode } = useColorMode();
   const data = useUserContext();
@@ -161,48 +163,50 @@ const UserDetails = ({
         ${colorMode === "light" ? "border-gray-300" : "border-gray-700"}
       `}
     >
-      {/* Toggle Button */}
-      <div className={`h-14 border-b flex w-full justify-end ${colorMode === "light" ? "border-gray-300" : "border-gray-700"}`}>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsOpen(!isOpen)}
-          className={`
-            ${isOpen ? "w-full flex justify-end p-4 items-center" : "w-full flex items-center justify-center p-4"}
-            ${
-              colorMode === "light"
-                ? "hover:bg-gray-100 text-gray-700 active:bg-gray-200"
-                : "hover:bg-gray-800/80 text-gray-200 active:bg-gray-700/80 border border-transparent hover:border-gray-600/50"
-            }
-            cursor-pointer transition-colors duration-200 rounded-lg m-1
-          `}
-          title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
-        >
-          <AnimatePresence mode="wait">
-            {isOpen ? (
-              <motion.div
-                key="collapse"
-                initial={{ opacity: 0, rotate: -90 }}
-                animate={{ opacity: 1, rotate: 0 }}
-                exit={{ opacity: 0, rotate: 90 }}
-                transition={{ duration: 0.2 }}
-              >
-                <IoChevronBackOutline className="w-5 h-5" />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="expand"
-                initial={{ opacity: 0, rotate: 90 }}
-                animate={{ opacity: 1, rotate: 0 }}
-                exit={{ opacity: 0, rotate: -90 }}
-                transition={{ duration: 0.2 }}
-              >
-                <IoChevronForwardOutline className="w-5 h-5" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.button>
-      </div>
+      {/* Toggle Button (hidden on mobile overlay) */}
+      {!hideToggle && (
+        <div className={`h-14 border-b flex w-full justify-end ${colorMode === "light" ? "border-gray-300" : "border-gray-700"}`}>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setIsOpen(!isOpen)}
+            className={`
+              ${isOpen ? "w-full flex justify-end p-4 items-center" : "w-full flex items-center justify-center p-4"}
+              ${
+                colorMode === "light"
+                  ? "hover:bg-gray-100 text-gray-700 active:bg-gray-200"
+                  : "hover:bg-gray-800/80 text-gray-200 active:bg-gray-700/80 border border-transparent hover:border-gray-600/50"
+              }
+              cursor-pointer transition-colors duration-200 rounded-lg m-1
+            `}
+            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            <AnimatePresence mode="wait">
+              {isOpen ? (
+                <motion.div
+                  key="collapse"
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: 90 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <IoChevronBackOutline className="w-5 h-5" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="expand"
+                  initial={{ opacity: 0, rotate: 90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: -90 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <IoChevronForwardOutline className="w-5 h-5" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
+      )}
 
       {/* User Avatar */}
       <div className="w-full flex justify-center my-6 px-2">

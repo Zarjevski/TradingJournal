@@ -78,15 +78,16 @@ export default function ChatList({
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 
-  const border = isDark ? "border-slate-700" : "border-gray-200";
-  const hover = isDark ? "hover:bg-slate-800" : "hover:bg-gray-100";
-  const selected = isDark ? "bg-slate-800" : "bg-gray-100";
+  const border = isDark ? "border-gray-600" : "border-gray-200";
+  const hover = isDark ? "hover:bg-slate-700" : "hover:bg-gray-100";
+  const selected = isDark ? "bg-slate-700" : "bg-gray-100";
   const text = isDark ? "text-slate-100" : "text-gray-900";
   const textMuted = isDark ? "text-slate-400" : "text-gray-500";
+  const listBg = isDark ? "bg-slate-900" : "bg-white";
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className={`flex-1 overflow-y-auto border-r ${border}`}>
+    <div className={`flex flex-col h-full min-h-0 overflow-hidden w-full ${listBg}`}>
+      <div className={`flex-1 min-h-0 overflow-y-auto w-full ${listBg}`}>
         {merged.length === 0 ? (
           <p className={`p-3 text-sm ${textMuted}`}>No friends to chat with yet.</p>
         ) : (

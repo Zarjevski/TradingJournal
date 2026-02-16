@@ -341,6 +341,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
   const textColor = colorMode === "light" ? "text-gray-900" : "text-gray-100";
   const cardBg = "app-surface";
   const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   const getStatusColor = (status: string): string => {
     const s = status.toUpperCase();
@@ -543,9 +544,15 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
     <div className={`min-h-screen w-full ${bgColor} ${textColor}`}>
       <div className="w-full h-full p-2 md:p-4 space-y-4">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className={`text-sm ${colorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>
+        <div className="mb-3 md:mb-4">
+          <h1 className="text-2xl xs:text-3xl md:text-4xl font-bold mb-1 md:mb-2">
+            Analytics Dashboard
+          </h1>
+          <p
+            className={`text-xs xs:text-sm ${
+              colorMode === "light" ? "text-gray-600" : "text-gray-400"
+            }`}
+          >
             Historical performance analysis and insights
           </p>
         </div>
@@ -553,8 +560,27 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
         {/* Filters */}
         <Card className={`${cardBg} ${borderColor} border`}>
           <div className="p-4 space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Filters</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h2 className="text-xl font-semibold">Filters</h2>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((open) => !open)}
+                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                {filtersOpen ? "Hide" : "Show"}
+                <span className="inline-flex items-center">
+                  {filtersOpen ? (
+                    <span className="inline-block rotate-180">&#9660;</span>
+                  ) : (
+                    <span className="inline-block">&#9660;</span>
+                  )}
+                </span>
+              </button>
+            </div>
+
+            {filtersOpen && (
+              <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Start Date</label>
                 <Input
@@ -637,6 +663,8 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
             >
               Apply Filters
             </Button>
+              </>
+            )}
           </div>
         </Card>
 
@@ -649,7 +677,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
 
         {/* KPI Cards */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 md:gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Card key={i} className={`${cardBg} ${borderColor} border`}>
                 <div className="p-4">
@@ -661,7 +689,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
             ))}
           </div>
         ) : data ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 md:gap-4">
             {kpiCards.map((kpi, index) => {
               const IconComponent = kpi.icon;
               const colorClasses = getColorClasses(kpi.color);
@@ -672,15 +700,25 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className={`${cardBg} ${borderColor} border`}>
-                    <div className="p-4">
-                      <div className={`flex items-center gap-3 mb-2 p-2 rounded-md ${colorClasses.bg}`}>
-                        <IconComponent className={`h-5 w-5 ${colorClasses.text}`} />
+                  <Card className={`${cardBg} ${borderColor} border h-full`}>
+                    <div className="p-3 md:p-4 flex items-center gap-3 min-h-[72px] md:min-h-[96px]">
+                      <div
+                        className={`flex items-center justify-center p-2.5 md:p-3 rounded-md ${colorClasses.bg}`}
+                      >
+                        <IconComponent className={`h-5 w-5 md:h-7 md:w-7 ${colorClasses.text}`} />
                       </div>
-                      <p className={`text-sm font-medium mb-1 ${colorMode === "light" ? "text-gray-500" : "text-gray-400"}`}>
-                        {kpi.title}
-                      </p>
-                      <h3 className="text-2xl font-bold">{kpi.value}</h3>
+                      <div className="flex flex-col min-w-0">
+                        <p
+                          className={`text-xs xs:text-sm md:text-sm leading-snug font-medium mb-0.5 ${
+                            colorMode === "light" ? "text-gray-500" : "text-gray-400"
+                          }`}
+                        >
+                          {kpi.title}
+                        </p>
+                        <h3 className="text-base xs:text-lg md:text-2xl font-bold">
+                          {kpi.value}
+                        </h3>
+                      </div>
                     </div>
                   </Card>
                 </motion.div>

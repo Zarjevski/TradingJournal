@@ -154,7 +154,7 @@ export default function TeamHubClient({ teamId }: TeamHubClientProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className={`min-h-screen flex items-center justify-center ${bgColor} ${textColor}`}>
         <Spinner size="lg" />
       </div>
     );
@@ -162,7 +162,7 @@ export default function TeamHubClient({ teamId }: TeamHubClientProps) {
 
   if (error || !team) {
     return (
-      <div className={`min-h-screen p-4 md:p-6 lg:p-8 ${bgColor} ${textColor}`}>
+      <div className={`min-h-screen p-3 md:p-6 lg:p-8 ${bgColor} ${textColor}`}>
         <Alert variant="error">{error || "Team not found"}</Alert>
       </div>
     );
@@ -205,8 +205,8 @@ export default function TeamHubClient({ teamId }: TeamHubClientProps) {
 
   return (
     <div className={`min-h-screen w-full ${bgColor} ${textColor}`}>
-      <div className="w-full h-full p-2 md:p-4">
-        <div className="mb-6 flex items-start gap-4">
+      <div className="w-full h-full p-2 md:p-4 space-y-4">
+        <div className="mb-2 md:mb-4 flex items-start gap-4 flex-wrap">
           <div className="relative group cursor-pointer" onClick={handleImageClick} title="Click to change team image">
             {team.imageURL ? (
               <div className="relative">
@@ -230,9 +230,9 @@ export default function TeamHubClient({ teamId }: TeamHubClientProps) {
               </div>
             )}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{team.name}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl xs:text-3xl font-bold">{team.name}</h1>
               {isAdmin && (
                 <Button
                   variant="ghost"

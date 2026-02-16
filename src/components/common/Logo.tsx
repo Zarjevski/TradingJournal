@@ -6,16 +6,17 @@ interface LogoProps {
   width: number;
   height: number;
   colorMode: string;
+  className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ width, height, colorMode }) => {
+const Logo: React.FC<LogoProps> = ({ width, height, colorMode, className = "" }) => {
   return (
     <Image
       src={colorMode === "light" ? LogoBlack : LogoWhite}
       width={width}
       height={height}
       alt="logo"
-      className="cursor-pointer  xs:h-4 xs:w-16 md:h-10 md:w-72 "
+      className={`cursor-pointer ${className}`.trim()}
     />
   );
 };

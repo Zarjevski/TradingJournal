@@ -57,11 +57,11 @@ const Page = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="h-full w-full p-6 overflow-y-auto app-bg"
+      className="h-full w-full p-3 md:p-6 overflow-y-auto app-bg"
     >
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Exchanges</h1>
-        <p className={`text-sm ${
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl xs:text-3xl font-bold mb-1 md:mb-2">Exchanges</h1>
+        <p className={`text-xs xs:text-sm ${
           colorMode === "light" ? "text-gray-600" : "text-gray-400"
         }`}>
           Manage your trading exchanges and account balances
@@ -101,15 +101,16 @@ const Page = () => {
 
       {/* Exchanges Section */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col xs:flex-row xs:justify-between xs:items-center gap-3 mb-4">
           <h2 className="text-lg font-semibold">My Exchanges</h2>
           <Button
             text="Add Exchange"
             onClick={() => newExcahnge()}
             icon={FaPlus}
+            className="w-full xs:w-auto min-h-[44px] touch-manipulation"
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-4">
           {isLoading ? (
             <>
               <Skeleton width="w-full" hieght="h-24" />
@@ -121,8 +122,9 @@ const Page = () => {
               <motion.div
                 key={exchange.id}
                 whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => setActive(exchange.id)}
-                className={`rounded-lg border shadow-lg backdrop-blur-sm p-4 cursor-pointer transition-all ${
+                className={`rounded-lg border shadow-lg backdrop-blur-sm p-4 cursor-pointer transition-all min-h-[80px] flex items-center touch-manipulation ${
                   active === exchange.id
                     ? colorMode === "light"
                       ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
@@ -204,7 +206,7 @@ const Page = () => {
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
-        <div className={`p-6 ${
+        <div className={`p-4 sm:p-6 w-full max-w-[calc(100vw-2rem)] ${
           colorMode === "light" ? "bg-white" : "bg-gray-800"
         }`}>
           <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
@@ -214,17 +216,17 @@ const Page = () => {
             Are you sure you want to delete <strong>{selectedExchange?.exchangeName}</strong>?
             This will permanently delete the exchange and all associated trades.
           </p>
-          <div className="flex gap-4 justify-end">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 justify-end">
             <Button
               text="Cancel"
               onClick={() => setShowDeleteModal(false)}
-              className="bg-gray-500 hover:bg-gray-600"
+              className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto min-h-[44px] touch-manipulation"
             />
             <Button
               text={isDeleting ? "Deleting..." : "Delete"}
               onClick={deleteExchange}
               disabled={isDeleting}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto min-h-[44px] touch-manipulation"
             />
           </div>
         </div>

@@ -12,6 +12,8 @@ interface ButtonProps {
   variant?: "primary" | "secondary" | "danger";
   icon?: IconType;
   className?: string;
+  /** When true, only the icon is shown (text used for aria-label). Requires icon. */
+  iconOnly?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -23,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   icon: Icon,
   className = "",
+  iconOnly = false,
 }) => {
   const { colorMode } = useColorMode();
 
@@ -48,12 +51,15 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       whileHover={{ scale: disabled ? 1 : 1.02 }}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
-      className={`${getVariantStyles()} ${width} ${className} rounded-lg px-4 py-2 capitalize font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
+      className={`${getVariantStyles()} ${width} ${className} rounded-lg capitalize font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+        iconOnly ? "p-2.5 min-h-[44px] min-w-[44px]" : "px-4 py-3 min-h-[44px]"
+      }`}
       onClick={onClick}
       disabled={disabled}
+      aria-label={iconOnly ? text : undefined}
     >
-      {Icon && <Icon className="text-sm" />}
-      {text}
+      {Icon && <Icon className={iconOnly ? "w-5 h-5" : "text-sm"} />}
+      {!iconOnly && text}
     </m.button>
   );
 };

@@ -82,7 +82,7 @@ export default function TeamsClient() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className={`min-h-screen flex items-center justify-center ${bgColor} ${textColor}`}>
         <Spinner size="lg" />
       </div>
     );
@@ -90,9 +90,9 @@ export default function TeamsClient() {
 
   return (
     <div className={`min-h-screen w-full ${bgColor} ${textColor}`}>
-      <div className="w-full h-full p-2 md:p-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">My Teams</h1>
+      <div className="w-full h-full p-2 md:p-4 space-y-4">
+        <div className="flex justify-between items-center mb-2 md:mb-4 gap-3 flex-wrap">
+          <h1 className="text-2xl xs:text-3xl font-bold">My Teams</h1>
           <Button onClick={() => router.push("/team/new")}>
             <FaPlus className="mr-2" />
             Create Team
@@ -187,7 +187,7 @@ export default function TeamsClient() {
             }
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map((team) => (
               <div
                 key={team.id}

@@ -35,7 +35,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
         {label}
       </label>
       <div
-        className={`flex gap-2 ${
+        className={`flex gap-2 flex-wrap ${
           orientation === "vertical" ? "flex-col" : "flex-row"
         }`}
       >

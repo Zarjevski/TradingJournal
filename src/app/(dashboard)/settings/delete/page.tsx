@@ -46,25 +46,25 @@ const Page = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="w-full h-full p-6 app-bg"
+      className="w-full h-full p-3 md:p-6 app-bg"
     >
       <div
-        className={`rounded-lg border shadow-lg backdrop-blur-sm p-8 ${
+        className={`rounded-lg border shadow-lg backdrop-blur-sm p-6 md:p-8 ${
           colorMode === "light"
             ? "bg-red-50 border-red-200"
             : "bg-red-900/20 border-red-800"
         }`}
       >
-        <div className="flex items-start gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-6">
           <div
-            className={`p-3 rounded-full ${
+            className={`p-3 rounded-full flex-shrink-0 w-fit ${
               colorMode === "light" ? "bg-red-100" : "bg-red-900/50"
             }`}
           >
             <FaExclamationTriangle className="text-2xl text-red-500" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold mb-2">Delete Your Account</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold mb-2">Delete Your Account</h1>
             <p className={`text-sm ${
               colorMode === "light" ? "text-gray-700" : "text-gray-300"
             }`}>
@@ -110,7 +110,7 @@ const Page = () => {
 
       {/* Confirmation Modal */}
       <ConfirmModal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <div className={`p-6 ${
+        <div className={`p-4 sm:p-6 w-full max-w-[calc(100vw-2rem)] ${
           colorMode === "light" ? "bg-white" : "bg-gray-800"
         }`}>
           <div className="flex items-center gap-3 mb-4">
@@ -133,26 +133,26 @@ const Page = () => {
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="Type DELETE to confirm"
-            className={`w-full px-4 py-2 rounded-lg border mb-4 ${
+            className={`w-full px-4 py-3 rounded-lg border mb-4 min-h-[44px] text-base touch-manipulation ${
               colorMode === "light"
                 ? "bg-white border-gray-300"
                 : "bg-gray-700 border-gray-600 text-white"
             }`}
           />
-          <div className="flex gap-4 justify-end">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 justify-end">
             <Button
               text="Cancel"
               onClick={() => {
                 setShowModal(false);
                 setConfirmText("");
               }}
-              className="bg-gray-500 hover:bg-gray-600"
+              className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto min-h-[44px] touch-manipulation"
             />
             <Button
               text={isDeleting ? "Deleting..." : "Delete Account"}
               onClick={handleDelete}
               disabled={isDeleting || confirmText.toLowerCase() !== "delete"}
-              className="bg-red-500 hover:bg-red-600 text-white disabled:opacity-50"
+              className="bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 w-full sm:w-auto min-h-[44px] touch-manipulation"
             />
           </div>
         </div>

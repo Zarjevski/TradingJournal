@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { FaPlus, FaSearch, FaArrowLeft, FaArrowRight, FaEye } from "react-icons/fa";
+import { FaPlus, FaSearch, FaArrowLeft, FaArrowRight, FaEye, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
@@ -181,13 +181,16 @@ const TradesClient: React.FC<TradesClientProps> = ({
   const textColor = colorMode === "light" ? "text-gray-900" : "text-gray-100";
   const cardBg = "app-surface";
   const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   return (
     <div className={`min-h-screen w-full ${bgColor} ${textColor}`}>
-      <div className="w-full h-full p-2 md:p-4 space-y-4">
+      <div className="w-full h-full p-2 md:p-4 space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center flex-wrap gap-4">
-          <h1 className="text-3xl font-bold">Trades</h1>
+        <div className="flex justify-between items-center flex-wrap gap-3">
+          <h1 className="text-2xl xs:text-3xl md:text-4xl font-bold">
+            Trades
+          </h1>
           <Button
             leftIcon={<FaPlus />}
             variant="primary"
@@ -200,8 +203,25 @@ const TradesClient: React.FC<TradesClientProps> = ({
         {/* Filters */}
         <Card className={`${cardBg} ${borderColor} border`}>
           <div className="p-4 space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Filters</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h2 className="text-xl font-semibold">Filters</h2>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((open) => !open)}
+                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                {filtersOpen ? "Hide" : "Show"}
+                {filtersOpen ? (
+                  <FaChevronUp className="h-3 w-3" />
+                ) : (
+                  <FaChevronDown className="h-3 w-3" />
+                )}
+              </button>
+            </div>
+
+            {filtersOpen && (
+              <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Status</label>
                 <Select
@@ -297,6 +317,8 @@ const TradesClient: React.FC<TradesClientProps> = ({
                 Reset
               </Button>
             </div>
+              </>
+            )}
           </div>
         </Card>
 

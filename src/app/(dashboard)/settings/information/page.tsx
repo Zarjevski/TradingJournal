@@ -159,11 +159,11 @@ const Page = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="w-full h-full p-6 overflow-y-auto app-bg"
+      className="w-full h-full p-3 md:p-6 overflow-y-auto app-bg"
     >
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">User Information</h1>
-        <p className={`text-sm ${
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl xs:text-3xl font-bold mb-1 md:mb-2">User Information</h1>
+        <p className={`text-xs xs:text-sm ${
           colorMode === "light" ? "text-gray-600" : "text-gray-400"
         }`}>
           Update your personal information and profile picture
@@ -171,7 +171,7 @@ const Page = () => {
       </div>
 
       {/* Profile Picture */}
-      <div className="flex items-center justify-center mb-8">
+      <div className="flex items-center justify-center mb-6 md:mb-8">
         <div className="relative">
           <div
             className={`relative rounded-full h-32 w-32 border-2 flex items-center justify-center overflow-hidden group ${
@@ -191,13 +191,14 @@ const Page = () => {
                   height={128}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 md:group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={handleRemovePhoto}
-                    className="opacity-0 group-hover:opacity-100 bg-red-500 text-white p-2 rounded-full transition-opacity"
+                    className="opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-red-500 text-white p-2.5 rounded-full transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
                     type="button"
+                    aria-label="Remove photo"
                   >
                     <MdDelete className="text-xl" />
                   </motion.button>
@@ -215,7 +216,7 @@ const Page = () => {
           </div>
           <label
             htmlFor="photo-upload"
-            className={`absolute bottom-0 right-0 p-2 rounded-full border-2 cursor-pointer transition-all ${
+            className={`absolute bottom-0 right-0 p-2.5 rounded-full border-2 cursor-pointer transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
               isUploadingPhoto
                 ? "opacity-50 cursor-not-allowed"
                 : colorMode === "light"
@@ -285,7 +286,7 @@ const Page = () => {
           />
         </div>
 
-        <div className="flex justify-end gap-4 pt-4 border-t">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-4 border-t">
           <Button
             text={isSubmitting ? "Saving..." : "Save Changes"}
             onClick={() => {}}

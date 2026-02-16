@@ -40,9 +40,9 @@ export default function NewTeamClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen app-bg p-3 md:p-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Create New Team</h1>
+        <h1 className="text-2xl xs:text-3xl font-bold mb-4 md:mb-6">Create New Team</h1>
         <Card>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <Alert variant="error">{error}</Alert>}

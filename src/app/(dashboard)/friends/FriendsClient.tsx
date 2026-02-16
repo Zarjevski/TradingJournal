@@ -226,12 +226,12 @@ export default function FriendsClient() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className={`text-2xl font-bold mb-6 ${text}`}>Friends</h1>
+      <h1 className={`text-2xl xs:text-3xl font-bold mb-4 ${text}`}>Friends</h1>
 
       {/* Search */}
       <div className={`${bg} border ${border} rounded-lg p-4 mb-6`}>
         <p className={`text-sm font-medium mb-2 ${text}`}>Add friend</p>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={searchQ}

@@ -56,19 +56,19 @@ const Login: React.FC<LoginProps> = ({ changeVariant, colorMode: colorModeProp }
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`p-8 md:p-12 mt-8 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
+      className={`p-4 sm:p-6 md:p-12 mt-4 sm:mt-6 md:mt-8 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md mx-auto ${
         actualColorMode === "light"
           ? "bg-white/95 border-gray-200 text-gray-900"
           : "bg-gray-800/95 border-gray-700 text-white"
       }`}
       onSubmit={handleSubmit}
     >
-      <div className="text-center mb-8">
-        <h1 className="text-2xl capitalize font-bold mb-2">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl capitalize font-bold mb-2">
           Welcome Trader!
         </h1>
         <h2
-          className={`text-sm ${
+          className={`text-xs sm:text-sm ${
             actualColorMode === "light" ? "text-gray-600" : "text-gray-400"
           }`}
         >
@@ -123,13 +123,13 @@ const Login: React.FC<LoginProps> = ({ changeVariant, colorMode: colorModeProp }
         />
       </div>
 
-      <div className="flex justify-between mt-6 text-sm">
+      <div className="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0 mt-6 text-sm">
         <button
           type="button"
-          className={`capitalize transition-colors ${
+          className={`capitalize transition-colors text-left py-1 min-h-[44px] sm:min-h-0 flex items-center ${
             actualColorMode === "light"
-              ? "text-blue-600 hover:text-blue-700"
-              : "text-purple-400 hover:text-purple-300"
+              ? "text-blue-600 hover:text-blue-700 active:text-blue-800"
+              : "text-purple-400 hover:text-purple-300 active:text-purple-200"
           }`}
           onClick={() => changeVariant("register")}
         >
@@ -137,7 +137,7 @@ const Login: React.FC<LoginProps> = ({ changeVariant, colorMode: colorModeProp }
         </button>
         <Link
           href="/forgot-password"
-          className={`transition-colors ${
+          className={`transition-colors py-1 min-h-[44px] sm:min-h-0 flex items-center ${
             actualColorMode === "light"
               ? "text-gray-600 hover:text-gray-700"
               : "text-gray-400 hover:text-gray-300"

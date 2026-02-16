@@ -23,7 +23,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const { colorMode } = useColorMode();
   return (
     <div
-      className={`h-14 m-4 flex flex-col justify-center  w-full ${
+      className={`w-full my-4 ${
         isOpen ? "relative" : ""
       }`}
     >

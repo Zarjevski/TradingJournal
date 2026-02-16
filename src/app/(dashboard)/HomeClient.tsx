@@ -64,34 +64,40 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
     <div className={`min-h-screen w-full ${bgColor} ${textColor}`}>
       <div className="w-full h-full p-2 md:p-4 space-y-4 md:space-y-6">
         {/* Page Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Trading Command Center</h1>
-          <p className={`text-sm ${colorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-2xl xs:text-3xl md:text-4xl font-bold mb-1 md:mb-2">
+            Trading Command Center
+          </h1>
+          <p className={`text-xs xs:text-sm ${colorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>
             Current state, market context, and immediate actions
           </p>
         </div>
 
-        {/* Top Section - 4 KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Top Section - 4 KPI Cards: 2 cols on mobile, 4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className={`${cardBg} ${borderColor} border`}>
-              <div className="flex items-center gap-4">
+            <Card className={`${cardBg} ${borderColor} border h-full`}>
+              <div className="p-3 md:p-4 flex items-center gap-3 min-h-[72px] md:min-h-[96px]">
                 <div
-                  className={`p-3 rounded-lg ${
+                  className={`p-2.5 md:p-3 rounded-lg ${
                     colorMode === "light" ? "bg-blue-50" : "bg-purple-900/30"
                   } ${colorMode === "light" ? "text-blue-500" : "text-purple-400"}`}
                 >
-                  <FaDollarSign className="h-6 w-6" />
+                  <FaDollarSign className="h-5 w-5 md:h-7 md:w-7" />
                 </div>
-                <div className="flex flex-col">
-                  <p className={`text-sm font-medium ${colorMode === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                <div className="flex flex-col min-w-0">
+                  <p
+                    className={`text-xs xs:text-sm md:text-sm leading-snug font-medium mb-0.5 ${
+                      colorMode === "light" ? "text-gray-500" : "text-gray-400"
+                    }`}
+                  >
                     Total Balance
                   </p>
-                  <h2 className="text-2xl font-bold">
+                  <h2 className="text-base xs:text-lg md:text-2xl font-bold">
                     ${homeData.totalBalance.toLocaleString("en-US")}
                   </h2>
                 </div>
@@ -104,20 +110,26 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className={`${cardBg} ${borderColor} border`}>
-              <div className="flex items-center gap-4">
+            <Card className={`${cardBg} ${borderColor} border h-full`}>
+              <div className="p-3 md:p-4 flex items-center gap-3 min-h-[72px] md:min-h-[96px]">
                 <div
-                  className={`p-3 rounded-lg ${
+                  className={`p-2.5 md:p-3 rounded-lg ${
                     colorMode === "light" ? "bg-yellow-50" : "bg-yellow-900"
                   } text-yellow-500`}
                 >
-                  <FaClock className="h-6 w-6" />
+                  <FaClock className="h-5 w-5 md:h-7 md:w-7" />
                 </div>
-                <div className="flex flex-col">
-                  <p className={`text-sm font-medium ${colorMode === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                <div className="flex flex-col min-w-0">
+                  <p
+                    className={`text-xs xs:text-sm md:text-sm leading-snug font-medium mb-0.5 ${
+                      colorMode === "light" ? "text-gray-500" : "text-gray-400"
+                    }`}
+                  >
                     Open Trades
                   </p>
-                  <h2 className="text-2xl font-bold">{homeData.openTradesCount}</h2>
+                  <h2 className="text-base xs:text-lg md:text-2xl font-bold">
+                    {homeData.openTradesCount}
+                  </h2>
                 </div>
               </div>
             </Card>
@@ -128,20 +140,26 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className={`${cardBg} ${borderColor} border`}>
-              <div className="flex items-center gap-4">
+            <Card className={`${cardBg} ${borderColor} border h-full`}>
+              <div className="p-3 md:p-4 flex items-center gap-3 min-h-[72px] md:min-h-[96px]">
                 <div
-                  className={`p-3 rounded-lg ${
+                  className={`p-2.5 md:p-3 rounded-lg ${
                     colorMode === "light" ? "bg-purple-50" : "bg-purple-900"
                   } text-purple-500`}
                 >
-                  <FaChartLine className="h-6 w-6" />
+                  <FaChartLine className="h-5 w-5 md:h-7 md:w-7" />
                 </div>
-                <div className="flex flex-col">
-                  <p className={`text-sm font-medium ${colorMode === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                <div className="flex flex-col min-w-0">
+                  <p
+                    className={`text-xs xs:text-sm md:text-sm leading-snug font-medium mb-0.5 ${
+                      colorMode === "light" ? "text-gray-500" : "text-gray-400"
+                    }`}
+                  >
                     Trades Today
                   </p>
-                  <h2 className="text-2xl font-bold">{homeData.todayTradesCount}</h2>
+                  <h2 className="text-base xs:text-lg md:text-2xl font-bold">
+                    {homeData.todayTradesCount}
+                  </h2>
                 </div>
               </div>
             </Card>
@@ -152,10 +170,10 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className={`${cardBg} ${borderColor} border`}>
-              <div className="flex items-center gap-4">
+            <Card className={`${cardBg} ${borderColor} border h-full`}>
+              <div className="p-3 md:p-4 flex items-center gap-3 min-h-[72px] md:min-h-[96px]">
                 <div
-                  className={`p-3 rounded-lg ${
+                  className={`p-2.5 md:p-3 rounded-lg ${
                     homeData.todayPnL >= 0
                       ? colorMode === "light"
                         ? "bg-green-50"
@@ -166,17 +184,21 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
                   } ${homeData.todayPnL >= 0 ? "text-green-500" : "text-red-500"}`}
                 >
                   {homeData.todayPnL >= 0 ? (
-                    <FaArrowUp className="h-6 w-6" />
+                    <FaArrowUp className="h-5 w-5 md:h-7 md:w-7" />
                   ) : (
-                    <FaArrowDown className="h-6 w-6" />
+                    <FaArrowDown className="h-5 w-5 md:h-7 md:w-7" />
                   )}
                 </div>
-                <div className="flex flex-col">
-                  <p className={`text-sm font-medium ${colorMode === "light" ? "text-gray-500" : "text-gray-400"}`}>
+                <div className="flex flex-col min-w-0">
+                  <p
+                    className={`text-xs xs:text-sm md:text-sm leading-snug font-medium mb-0.5 ${
+                      colorMode === "light" ? "text-gray-500" : "text-gray-400"
+                    }`}
+                  >
                     P&L Today
                   </p>
                   <h2
-                    className={`text-2xl font-bold ${
+                    className={`text-base xs:text-lg md:text-2xl font-bold ${
                       homeData.todayPnL >= 0 ? "text-green-500" : "text-red-500"
                     }`}
                   >
@@ -242,7 +264,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ homeData }) => {
             {/* Quick Actions */}
             <Card className={`${cardBg} ${borderColor} border`}>
               <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
                 <Button
                   leftIcon={<FaPlus />}
                   variant="primary"

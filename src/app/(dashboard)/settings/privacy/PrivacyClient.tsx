@@ -69,15 +69,15 @@ export default function PrivacyClient() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className={textMuted}>Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className={`text-2xl font-bold mb-2 ${text}`}>Privacy</h1>
+    <div className="p-4 sm:p-6 max-w-xl mx-auto w-full">
+      <h1 className={`text-xl sm:text-2xl font-bold mb-2 ${text}`}>Privacy</h1>
       <p className={`text-sm ${textMuted} mb-6`}>
         Control what friends can see on your profile.
       </p>
@@ -86,7 +86,7 @@ export default function PrivacyClient() {
         <p className="text-red-500 text-sm mb-4">{error}</p>
       )}
 
-      <div className={`${bg} border ${border} rounded-lg p-6 space-y-6`}>
+      <div className={`${bg} border ${border} rounded-lg p-4 sm:p-6 space-y-6`}>
         <ToggleRow
           label="Share trade count"
           description="Show number of trades (last 90 days) to friends"
@@ -145,8 +145,8 @@ function ToggleRow({
   const textMuted = colorMode === "light" ? "text-gray-500" : "text-gray-400";
 
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div>
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+      <div className="flex-1 min-w-0">
         <p className={`font-medium ${text}`}>{label}</p>
         <p className={`text-sm mt-0.5 ${textMuted}`}>{description}</p>
       </div>
@@ -156,8 +156,9 @@ function ToggleRow({
         aria-checked={checked}
         onClick={onToggle}
         className={`
-          relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full
+          relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full touch-manipulation
           transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+          min-w-[48px] min-h-[44px] items-center
           ${checked ? (colorMode === "light" ? "bg-blue-600" : "bg-purple-600") : "bg-gray-300 dark:bg-gray-600"}
           ${colorMode === "light" ? "focus:ring-blue-500" : "focus:ring-purple-500"}
         `}
@@ -166,9 +167,8 @@ function ToggleRow({
           className={`
             pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0
             transition duration-200
-            ${checked ? "translate-x-5" : "translate-x-1"}
+            ${checked ? "translate-x-6" : "translate-x-1.5"}
           `}
-          style={{ marginTop: 2 }}
         />
       </button>
     </div>

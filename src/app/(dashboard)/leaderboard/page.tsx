@@ -114,45 +114,78 @@ export default function LeaderboardPage() {
               onKeyDown={(e) => e.key === "Enter" && router.push(`/team/${team.id}`)}
               className="cursor-pointer"
             >
-            <Card
-              className={`${cardBg} ${borderColor} border hover:shadow-lg transition-shadow`}
-            >
-              <div className="p-4 flex items-center gap-4">
-                <div className="flex flex-col items-center w-12">
-                  <span className="text-xl font-bold">#{index + 1}</span>
-                  {index === 0 && <Badge variant="info" size="sm">Top</Badge>}
-                </div>
-                <div className="flex-shrink-0">
-                  {team.imageURL ? (
-                    <img
-                      src={team.imageURL}
-                      alt={team.name}
-                      className={`w-12 h-12 rounded-lg object-cover border ${borderColor}`}
-                    />
-                  ) : (
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-white font-semibold ${isDark ? "bg-purple-600" : "bg-blue-600"}`}>
-                      {team.name[0]?.toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-lg font-semibold">{team.name}</h2>
-                    <Badge variant="default" size="sm">{team.membersCount} members</Badge>
-                    <Badge variant="info" size="sm">{team.tradesShared} shared trades</Badge>
+              <Card
+                className={`${cardBg} ${borderColor} border hover:shadow-lg transition-shadow`}
+              >
+                <div className="p-4 sm:p-5 grid grid-cols-[auto,1fr] sm:grid-cols-[auto,1fr,auto] gap-3 sm:gap-4 items-center">
+                  {/* Rank */}
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-sm font-semibold text-gray-500">
+                      #{index + 1}
+                    </span>
+                    {index === 0 && (
+                      <Badge variant="info" size="sm">
+                        Top
+                      </Badge>
+                    )}
                   </div>
-                  {team.description && <p className={`text-sm ${muted}`}>{team.description}</p>}
+
+                  {/* Avatar + team info */}
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <div className="flex-shrink-0">
+                      {team.imageURL ? (
+                        <img
+                          src={team.imageURL}
+                          alt={team.name}
+                          className={`w-12 h-12 rounded-lg object-cover border ${borderColor}`}
+                        />
+                      ) : (
+                        <div
+                          className={`w-12 h-12 rounded-lg flex items-center justify-center text-white text-lg font-semibold ${
+                            isDark ? "bg-purple-600" : "bg-blue-600"
+                          }`}
+                        >
+                          {team.name[0]?.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-base sm:text-lg font-semibold truncate">
+                        {team.name}
+                      </h2>
+                      {team.description && (
+                        <p className={`mt-1 text-xs sm:text-sm ${muted}`}>
+                          {team.description}
+                        </p>
+                      )}
+                      <div className="mt-2 flex flex-wrap gap-2 text-xs sm:text-sm">
+                        <Badge variant="default" size="sm">
+                          {team.membersCount} members
+                        </Badge>
+                        <Badge variant="info" size="sm">
+                          {team.tradesShared} shared trades
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* P&L */}
+                  <div className="col-span-2 sm:col-span-1 sm:justify-self-end text-left sm:text-right">
+                    <p className="text-[11px] sm:text-xs uppercase tracking-wide mb-1 text-gray-500">
+                      Total P&L
+                    </p>
+                    {team.totalPnL >= 0 ? (
+                      <p className="text-base sm:text-lg font-bold text-green-500">
+                        +${team.totalPnL.toLocaleString()}
+                      </p>
+                    ) : (
+                      <p className="text-base sm:text-lg font-bold text-red-500">
+                        -${Math.abs(team.totalPnL).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right min-w-[120px]">
-                  <p className="text-xs uppercase tracking-wide mb-1 text-gray-500">Total P&L</p>
-                  {team.totalPnL >= 0 ? (
-                    <p className="text-lg font-bold text-green-500">+${team.totalPnL.toLocaleString()}</p>
-                  ) : (
-                    <p className="text-lg font-bold text-red-500">-${Math.abs(team.totalPnL).toLocaleString()}</p>
-                  )}
-                </div>
-              </div>
-            </Card>
+              </Card>
             </div>
           ))}
         </div>
@@ -233,9 +266,9 @@ export default function LeaderboardPage() {
   return (
     <div className={`min-h-screen w-full ${bgColor} ${textColor}`}>
       <div className="w-full h-full p-2 md:p-4 space-y-4">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">Leaderboard</h1>
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl xs:text-3xl font-bold">Leaderboard</h1>
             <FaCrown className={isDark ? "text-yellow-400" : "text-yellow-500"} />
           </div>
         </div>

@@ -73,19 +73,19 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`p-8 md:p-12 mt-8 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
+      className={`p-4 sm:p-6 md:p-12 mt-4 sm:mt-6 md:mt-8 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md mx-auto ${
         actualColorMode === "light"
           ? "bg-white/95 border-gray-200 text-gray-900"
           : "bg-gray-800/95 border-gray-700 text-white"
       }`}
       onSubmit={handleSubmit}
     >
-      <header className="text-center mb-8">
-        <h1 className="text-2xl capitalize font-bold mb-2">
+      <header className="text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl capitalize font-bold mb-2">
           Create an account
         </h1>
         <h2
-          className={`text-sm ${
+          className={`text-xs sm:text-sm ${
             actualColorMode === "light" ? "text-gray-600" : "text-gray-400"
           }`}
         >
@@ -154,10 +154,10 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
       <footer className="w-full flex justify-center mt-6">
         <button
           type="button"
-          className={`text-sm font-medium transition-colors ${
+          className={`text-sm font-medium transition-colors min-h-[44px] flex items-center justify-center px-4 py-2 rounded-lg -m-2 ${
             actualColorMode === "light"
-              ? "text-blue-600 hover:text-blue-700"
-              : "text-blue-400 hover:text-blue-300"
+              ? "text-blue-600 hover:text-blue-700 active:text-blue-800"
+              : "text-blue-400 hover:text-blue-300 active:text-blue-200"
           }`}
           onClick={() => changeVariant("login")}
         >
