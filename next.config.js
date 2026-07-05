@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['bcrypt'],
+  serverExternalPackages: ['bcrypt', 'ccxt'],
   images: {
     remotePatterns: [
       {
