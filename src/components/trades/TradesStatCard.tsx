@@ -25,13 +25,13 @@ const TradesStatCard: React.FC<StatCardProps> = ({
   return (
     <motion.article variants={item}
       className={`border rounded w-1/4 flex shadow ${
-        colorMode === "dark" ? "bg-gray-800" : "bg-white"
+        colorMode === "dark" ? "bg-zinc-800" : "bg-white"
       }`}
     >
       <div className="h-full w-1/3 flex items-center justify-center">
         <div
           className={`w-20 h-20 flex items-center justify-center rounded-full ${
-            colorMode === "light" ? "bg-gray-100" : "bg-gray-600"
+            colorMode === "light" ? "bg-zinc-100" : "bg-zinc-600"
           }`}
         >
           <Icon className={"h-8 w-8"}/>

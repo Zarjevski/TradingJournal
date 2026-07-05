@@ -2,13 +2,23 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { isValidEmail } from "@/lib/validation";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request.headers);
+    if (!checkRateLimit(`forgot-password:${ip}`, 3, 60_000)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
+    if (!isValidEmail(email)) {
       return NextResponse.json(
         { error: "Valid email address is required" },
         { status: 400 }

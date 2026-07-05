@@ -121,7 +121,7 @@ const FearAndGreed = ({ colorMode }: { colorMode: string }) => {
         className={`rounded-lg col-start-1 w-full h-full border shadow-lg backdrop-blur-sm ${
           colorMode === "light"
             ? "bg-white/95 border-gray-200"
-            : "bg-gray-800/95 border-white/30"
+            : "bg-zinc-800/95 border-white/30"
         }`}
       >
         <div className="p-6">
@@ -143,7 +143,7 @@ const FearAndGreed = ({ colorMode }: { colorMode: string }) => {
         className={`rounded-lg col-start-1 w-full h-full border shadow-lg backdrop-blur-sm p-6 flex flex-col items-center justify-center ${
           colorMode === "light"
             ? "bg-white/95 border-gray-200"
-            : "bg-gray-800/95 border-white/30"
+            : "bg-zinc-800/95 border-white/30"
         }`}
       >
         <FaInfoCircle className="text-4xl mb-4 text-gray-400" />
@@ -156,8 +156,8 @@ const FearAndGreed = ({ colorMode }: { colorMode: string }) => {
           onClick={fetchData}
           className={`mt-4 px-4 py-2 rounded-lg ${
             colorMode === "light"
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-blue-600 text-white hover:bg-blue-700"
+              ? "bg-zinc-900 text-white hover:bg-zinc-800"
+              : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200"
           }`}
         >
           Retry
@@ -174,7 +174,7 @@ const FearAndGreed = ({ colorMode }: { colorMode: string }) => {
       className={`rounded-lg col-start-1 w-full h-full border shadow-lg backdrop-blur-sm overflow-hidden ${
         colorMode === "light"
           ? "bg-white/95 border-gray-200"
-          : "bg-gray-800/95 border-white/30"
+          : "bg-zinc-800/95 border-white/30"
       }`}
     >
       {/* Header */}
@@ -183,7 +183,7 @@ const FearAndGreed = ({ colorMode }: { colorMode: string }) => {
       }`}>
         <div className="flex items-center justify-between">
           <h1 className="font-bold text-lg flex items-center gap-2">
-            <FaChartLine className="text-blue-500" />
+            <FaChartLine className="text-zinc-500" />
             Fear & Greed Index
           </h1>
           {trend !== 0 && (

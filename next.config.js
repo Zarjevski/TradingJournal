@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['bcrypt'],
-  },
+  serverExternalPackages: ['bcrypt'],
   images: {
     remotePatterns: [
       {
@@ -17,8 +15,6 @@ const nextConfig = {
   },
   // Enable React strict mode for better development experience
   reactStrictMode: true,
-  // Optimize production builds
-  swcMinify: true,
 }
 
 module.exports = nextConfig

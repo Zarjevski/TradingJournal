@@ -23,7 +23,7 @@ const Spinner: React.FC<SpinnerProps> = ({
     <div className={`flex items-center justify-center ${className}`}>
       <svg
         className={`animate-spin ${sizeClasses[size]} ${
-          colorMode === "light" ? "text-blue-600" : "text-purple-500"
+          colorMode === "light" ? "text-zinc-600" : "text-zinc-300"
         }`}
         fill="none"
         viewBox="0 0 24 24"

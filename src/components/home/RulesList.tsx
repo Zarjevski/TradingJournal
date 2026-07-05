@@ -22,7 +22,7 @@ const RulesList = () => {
       className={`${
         colorMode === "light"
           ? "text-gray-900 bg-white/95"
-          : "bg-gray-800/95 text-white"
+          : "bg-zinc-800/95 text-white"
       }
       rounded-lg col-start-4 row-span-2 border shadow-lg backdrop-blur-sm ${
         colorMode === "light" ? "border-gray-200" : "border-gray-700"

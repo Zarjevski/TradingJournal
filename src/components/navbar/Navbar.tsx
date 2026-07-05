@@ -31,10 +31,10 @@ const Navbar = ({ mobileSidebarOpen = false, onMobileSidebarToggle }: NavbarProp
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className={`sticky top-0 z-50 backdrop-blur-3xl flex flex-row justify-between items-center border-b min-h-[56px] md:min-h-[8vh] px-4 py-2 md:px-6 md:py-3 transition-all duration-300 ${
+      className={`sticky top-0 z-50 backdrop-blur-xl flex flex-row justify-between items-center border-b h-16 px-4 md:px-8 transition-all duration-300 ${
         colorMode === "light"
-          ? "text-gray-900 bg-white/95 border-gray-300 shadow-md shadow-gray-200/50"
-          : "bg-gradient-to-r from-black/90 via-purple-950/50 to-black/90 text-white border-gray-700 shadow-lg shadow-black/20"
+          ? "text-gray-900 bg-white/95 border-gray-200 shadow-sm"
+          : "bg-zinc-950/90 text-white border-zinc-800 shadow-sm"
       }`}
     >
       {/* Mobile only: TJ logo on far left (hidden on desktop via .nav-mobile-only) */}
@@ -43,8 +43,8 @@ const Navbar = ({ mobileSidebarOpen = false, onMobileSidebarToggle }: NavbarProp
       </div>
 
       {/* Desktop only: full logo (hidden on mobile via .nav-desktop-only in globals.css) */}
-      <div className="nav-desktop-only flex-shrink-0 w-[200px] items-center">
-        <Logo width={200} height={100} colorMode={colorMode} className="w-full h-auto object-contain object-left" />
+      <div className="nav-desktop-only flex-shrink-0 w-[170px] items-center">
+        <Logo width={170} height={56} colorMode={colorMode} className="w-full h-auto object-contain object-left" />
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
@@ -61,7 +61,7 @@ const Navbar = ({ mobileSidebarOpen = false, onMobileSidebarToggle }: NavbarProp
             onClick={() => onMobileSidebarToggle?.()}
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 transition-colors ${
               colorMode === "light"
-                ? "border-gray-300 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-gray-800"
+                ? "border-gray-300 bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 text-gray-800"
                 : "border-gray-500 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white"
             }`}
             aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}

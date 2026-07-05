@@ -30,17 +30,17 @@ const Button: React.FC<ButtonProps> = ({
   const baseClasses = "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variantClasses = {
-    primary: colorMode === "light" 
-      ? "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
-      : "bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500",
-    secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500",
+    primary: colorMode === "light"
+      ? "bg-zinc-900 text-white hover:bg-zinc-800 focus:ring-zinc-500"
+      : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 focus:ring-zinc-400",
+    secondary: "bg-zinc-600 text-white hover:bg-zinc-700 focus:ring-gray-500",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
     outline: colorMode === "light"
-      ? "border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500"
-      : "border-2 border-gray-600 text-gray-300 hover:bg-gray-800 focus:ring-gray-500",
+      ? "border-2 border-gray-300 text-gray-700 hover:bg-zinc-50 focus:ring-gray-500"
+      : "border-2 border-gray-600 text-gray-300 hover:bg-zinc-800 focus:ring-gray-500",
     ghost: colorMode === "light"
-      ? "text-gray-700 hover:bg-gray-100 focus:ring-gray-500"
-      : "text-gray-300 hover:bg-gray-800 focus:ring-gray-500",
+      ? "text-gray-700 hover:bg-zinc-100 focus:ring-gray-500"
+      : "text-gray-300 hover:bg-zinc-800 focus:ring-gray-500",
   };
   
   const sizeClasses = {

@@ -100,9 +100,9 @@ To become a successful trader, you must review your trades. This application hel
    ```env
    # Database
    # For local MongoDB:
-   DATABASE_URL="mongodb://localhost:27017/trading-journal"
+   DATABASE_URL="mongodb://localhost:27017/tradediary"
    # For MongoDB Atlas (see docs/MONGODB_ATLAS_SETUP.md):
-   # DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/trading-journal?retryWrites=true&w=majority"
+   # DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/tradediary?retryWrites=true&w=majority"
    
    # NextAuth Configuration (REQUIRED)
    # Generate a secret with: openssl rand -base64 32
@@ -133,7 +133,7 @@ To become a successful trader, you must review your trades. This application hel
    3. Get your connection string from Atlas
    4. Update `DATABASE_URL` in your `.env` file:
       ```env
-      DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/trading-journal?retryWrites=true&w=majority"
+      DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/tradediary?retryWrites=true&w=majority"
       ```
    5. See [MongoDB Atlas Setup Guide](./docs/MONGODB_ATLAS_SETUP.md) for detailed instructions
    
@@ -146,7 +146,7 @@ To become a successful trader, you must review your trades. This application hel
    
    Or use a local MongoDB instance with:
    ```env
-   DATABASE_URL="mongodb://localhost:27017/trading-journal"
+   DATABASE_URL="mongodb://localhost:27017/tradediary"
    ```
 
 5. **Run Prisma migrations**
@@ -356,7 +356,7 @@ If you see errors like `[next-auth][error][NO_SECRET]` or `[next-auth][warn][NEX
 - **MongoDB Atlas:** 
   - Verify your IP address is whitelisted in Network Access
   - Check that your username and password are correct (URL encode special characters)
-  - Ensure your connection string includes the database name: `/trading-journal`
+  - Ensure your connection string includes the database name: `/tradediary`
 - **General:** 
   - Verify `DATABASE_URL` in your `.env` file is correct
   - Run `npx prisma generate` and `npx prisma db push` to set up the database schema

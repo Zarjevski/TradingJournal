@@ -37,8 +37,8 @@ const NewRule = () => {
     }
   };
 
-  const bgColor = colorMode === "light" ? "bg-white" : "bg-gray-800";
-  const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
+  const bgColor = colorMode === "light" ? "bg-white" : "bg-zinc-900";
+  const borderColor = colorMode === "light" ? "border-zinc-200" : "border-zinc-700";
 
   return (
     <motion.form

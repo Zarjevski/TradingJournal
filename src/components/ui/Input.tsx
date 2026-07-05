@@ -4,7 +4,7 @@ import React from "react";
 import { useColorMode } from "@/context/ColorModeContext";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
+  label?: React.ReactNode;
   error?: string;
 }
 
@@ -32,10 +32,10 @@ const Input: React.FC<InputProps> = ({
         id={inputId}
         className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
           colorMode === "light"
-            ? "focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-            : "focus:ring-purple-500 focus:border-purple-500 bg-gray-700 text-gray-100"
+            ? "focus:ring-zinc-500 focus:border-zinc-500 bg-white text-gray-900"
+            : "focus:ring-zinc-400 focus:border-zinc-400 bg-zinc-800 text-gray-100"
         } ${
-          error ? "border-red-500" : colorMode === "light" ? "border-gray-300" : "border-gray-600"
+          error ? "border-red-500" : colorMode === "light" ? "border-gray-300" : "border-zinc-600"
         } ${className}`}
         {...props}
       />

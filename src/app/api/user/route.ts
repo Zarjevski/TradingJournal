@@ -15,7 +15,7 @@ export async function GET() {
 
     const { firstName, lastName, id, photoURL, status } = currentUser;
 
-    const [trades, rules, exchanges] = await Promise.all([
+    const [trades, rules, exchanges, accountMeta] = await Promise.all([
       prisma.trade.findMany({
         where: { traderID: id },
         orderBy: { createdAt: "desc" },
@@ -25,6 +25,10 @@ export async function GET() {
       }),
       prisma.exchange.findMany({
         where: { traderID: id },
+      }),
+      prisma.user.findUnique({
+        where: { id },
+        select: { password: true, createdAt: true },
       }),
     ]);
 
@@ -37,6 +41,8 @@ export async function GET() {
       trades,
       rules,
       exchanges,
+      hasPassword: !!accountMeta?.password,
+      createdAt: accountMeta?.createdAt,
     });
   } catch (error) {
     console.error("Error fetching user data:", error);

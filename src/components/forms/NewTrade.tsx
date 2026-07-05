@@ -9,7 +9,7 @@ import { useUserContext } from "@/context/UserContext";
 import { spring } from "@/utils/framerEffects";
 import { motion as m } from "framer-motion";
 import { FaSpinner } from "react-icons/fa";
-import Button from "../common/Button";
+import Button from "@/components/ui/Button";
 import showNotification from "@/hooks/useShowNotification";
 
 const NewTrade = () => {
@@ -105,8 +105,8 @@ const NewTrade = () => {
     <m.form
       className={`${
         colorMode === "light"
-          ? "bg-white/95 border-gray-200"
-          : "bg-gray-800/95 border-gray-700"
+          ? "bg-white/95 border-zinc-200"
+          : "bg-zinc-900/95 border-zinc-700"
       } w-full max-w-4xl max-h-[90vh] shadow-2xl rounded-xl border backdrop-blur-sm overflow-hidden flex flex-col`}
       initial={spring.initial}
       animate={spring.animate}
@@ -122,10 +122,9 @@ const NewTrade = () => {
             <TradeDetails setFormData={setFormData} formData={formData} />
           </div>
           <div className={`p-4 border-t flex justify-end gap-3 ${
-            colorMode === "light" ? "border-gray-200" : "border-gray-700"
+            colorMode === "light" ? "border-zinc-200" : "border-zinc-700"
           }`}>
             <Button
-              text="Cancel"
               onClick={() => {
                 setIsOpen(false);
                 setExchange({ id: "", title: "" });
@@ -143,13 +142,16 @@ const NewTrade = () => {
               }}
               variant="secondary"
               type="button"
-            />
+            >
+              Cancel
+            </Button>
             <Button
-              text={isLoading ? "Creating..." : "Create Trade"}
               type="submit"
               disabled={isLoading}
-              icon={isLoading ? FaSpinner : undefined}
-            />
+              leftIcon={isLoading ? <FaSpinner /> : undefined}
+            >
+              {isLoading ? "Creating..." : "Create Trade"}
+            </Button>
           </div>
         </>
       )}

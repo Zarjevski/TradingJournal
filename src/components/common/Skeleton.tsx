@@ -11,7 +11,7 @@ const Skeleton: React.FC<SkeletonProps> = ({ hieght, width }) => {
   return (
     <div
       className={`${hieght} ${width} ${
-        colorMode === "light" ? "bg-gray-200" : "bg-gray-700"
+        colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
       } my-2 animate-pulse`}
     >
     </div>

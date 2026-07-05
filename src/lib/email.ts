@@ -11,6 +11,17 @@
  * In development, the reset URL is logged to the console.
  */
 
+import { APP_NAME } from "@/lib/constants";
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 interface EmailOptions {
   to: string;
   subject: string;
@@ -58,7 +69,8 @@ export async function sendPasswordResetEmail(
   firstName: string,
   resetUrl: string
 ): Promise<void> {
-  const subject = "Reset Your Trading Journal Password";
+  const safeFirstName = escapeHtml(firstName);
+  const subject = `Reset Your ${APP_NAME} Password`;
   const html = `
     <!DOCTYPE html>
     <html>
@@ -69,11 +81,11 @@ export async function sendPasswordResetEmail(
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0;">Trading Journal</h1>
+          <h1 style="color: white; margin: 0;">${APP_NAME}</h1>
         </div>
         <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-          <h2 style="color: #333; margin-top: 0;">Hello ${firstName},</h2>
-          <p>We received a request to reset your password for your Trading Journal account.</p>
+          <h2 style="color: #333; margin-top: 0;">Hello ${safeFirstName},</h2>
+          <p>We received a request to reset your password for your ${APP_NAME} account.</p>
           <p>Click the button below to reset your password:</p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
@@ -84,7 +96,7 @@ export async function sendPasswordResetEmail(
           <p style="color: #666; font-size: 14px;">If you didn't request a password reset, you can safely ignore this email.</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
           <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-            © ${new Date().getFullYear()} Trading Journal. All rights reserved.
+            © ${new Date().getFullYear()} ${APP_NAME}. All rights reserved.
           </p>
         </div>
       </body>
@@ -94,7 +106,7 @@ export async function sendPasswordResetEmail(
   const text = `
 Hello ${firstName},
 
-We received a request to reset your password for your Trading Journal account.
+We received a request to reset your password for your ${APP_NAME} account.
 
 Click the link below to reset your password:
 ${resetUrl}
@@ -103,7 +115,7 @@ This link will expire in 1 hour.
 
 If you didn't request a password reset, you can safely ignore this email.
 
-© ${new Date().getFullYear()} Trading Journal. All rights reserved.
+© ${new Date().getFullYear()} ${APP_NAME}. All rights reserved.
   `;
 
   await sendEmail({

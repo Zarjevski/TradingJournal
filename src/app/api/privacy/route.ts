@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getOrCreateUserPrivacy } from "@/lib/friends";
+import { z } from "zod";
+
+const privacyPatchSchema = z
+  .object({
+    shareWinRate: z.boolean().optional(),
+    shareTradeCount: z.boolean().optional(),
+    shareTopSymbols: z.boolean().optional(),
+    shareActivity: z.boolean().optional(),
+  })
+  .strict();
 
 async function getMeId(): Promise<string | null> {
   const session = await getServerSession(authOptions);
@@ -35,26 +45,25 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: {
-    shareWinRate?: boolean;
-    shareTradeCount?: boolean;
-    shareTopSymbols?: boolean;
-    shareActivity?: boolean;
-  };
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const parsed = privacyPatchSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: parsed.error.flatten() },
+      { status: 400 }
+    );
   }
 
   const { prisma } = await import("@/lib/prisma");
   await getOrCreateUserPrivacy(meId);
 
-  const data: Record<string, boolean> = {};
-  if (typeof body.shareWinRate === "boolean") data.shareWinRate = body.shareWinRate;
-  if (typeof body.shareTradeCount === "boolean") data.shareTradeCount = body.shareTradeCount;
-  if (typeof body.shareTopSymbols === "boolean") data.shareTopSymbols = body.shareTopSymbols;
-  if (typeof body.shareActivity === "boolean") data.shareActivity = body.shareActivity;
+  const data = parsed.data;
 
   if (Object.keys(data).length === 0) {
     const privacy = await getOrCreateUserPrivacy(meId);

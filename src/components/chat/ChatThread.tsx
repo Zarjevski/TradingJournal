@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Input from "../common/Input";
-import Button from "../common/Button";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export interface ChatMessage {
   id: string;
@@ -51,31 +51,26 @@ export default function ChatThread({
     setMessageInput("");
   };
 
-  const bg = isDark ? "bg-slate-900" : "bg-white";
-  const bubbleMine = isDark ? "bg-purple-600 text-white" : "bg-blue-500 text-white";
-  const bubbleTheirs = isDark ? "bg-slate-700 text-slate-100" : "bg-gray-200 text-gray-900";
-  const border = isDark ? "border-gray-600" : "border-gray-200";
+  const bg = isDark ? "bg-zinc-900" : "bg-white";
+  const bubbleMine = isDark ? "bg-zinc-100 text-zinc-900" : "bg-zinc-900 text-white";
+  const bubbleTheirs = isDark ? "bg-zinc-800 text-gray-100" : "bg-zinc-100 text-gray-900";
+  const border = isDark ? "border-zinc-800" : "border-zinc-200";
 
   return (
     <div
-      className={`flex flex-col overflow-hidden ${bg} rounded-r-lg`}
-      style={{
-        flex: "1 1 0",
-        minHeight: 0,
-        height: "100%",
-        ...(isDark ? { backgroundColor: "#0f172a" } : {}),
-      }}
+      className={`flex flex-col overflow-hidden ${bg} rounded-r-xl`}
+      style={{ flex: "1 1 0", minHeight: 0, height: "100%" }}
     >
       {showHeader && (
-        <div className={`flex items-center gap-2 px-3 py-2 border-b ${border} shrink-0 ${isDark ? "bg-slate-800" : "bg-gray-50"}`}>
+        <div className={`flex items-center gap-2 px-3 py-2 border-b ${border} shrink-0 ${isDark ? "bg-zinc-800/60" : "bg-zinc-50"}`}>
           {friend.photoURL ? (
             <Image src={friend.photoURL} alt="" width={32} height={32} className="rounded-full object-cover" />
           ) : (
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${isDark ? "bg-slate-600 text-slate-200" : "bg-gray-300 text-gray-700"}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${isDark ? "bg-zinc-700 text-gray-200" : "bg-zinc-200 text-gray-700"}`}>
               {(friend.firstName?.[0] || "") + (friend.lastName?.[0] || "")}
             </div>
           )}
-          <span className={`font-medium text-sm ${isDark ? "text-slate-100" : "text-gray-900"}`}>
+          <span className={`font-medium text-sm ${isDark ? "text-gray-100" : "text-gray-900"}`}>
             {friend.firstName} {friend.lastName}
           </span>
         </div>
@@ -87,9 +82,9 @@ export default function ChatThread({
         style={{ flex: "1 1 0", minHeight: 0, maxHeight: "100%" }}
       >
         {loading && messages.length === 0 ? (
-          <p className={`text-xs ${isDark ? "text-slate-400" : "text-gray-500"}`}>Loading...</p>
+          <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>Loading...</p>
         ) : messages.length === 0 ? (
-          <p className={`text-xs ${isDark ? "text-slate-400" : "text-gray-500"}`}>No messages yet. Say hi!</p>
+          <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>No messages yet. Say hi!</p>
         ) : (
           (() => {
             const byId = new Map<string, ChatMessage>();
@@ -124,7 +119,7 @@ export default function ChatThread({
       )}
 
       {/* Composer: fixed at bottom, never shrinks */}
-      <form onSubmit={handleSubmit} className={`p-2 border-t ${border} shrink-0 ${isDark ? "bg-slate-800" : "bg-gray-50"}`}>
+      <form onSubmit={handleSubmit} className={`p-2 border-t ${border} shrink-0 ${isDark ? "bg-zinc-800/60" : "bg-zinc-50"}`}>
         <div className="flex gap-2 items-center">
           <div className="flex-1 min-w-0">
             <Input
@@ -135,7 +130,7 @@ export default function ChatThread({
               maxLength={1000}
             />
           </div>
-          <Button type="submit" text="Send" variant="primary" className="shrink-0" />
+          <Button type="submit" variant="primary" className="shrink-0">Send</Button>
         </div>
       </form>
     </div>

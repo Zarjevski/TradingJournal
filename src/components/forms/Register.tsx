@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import Input from "../common/Input";
-import Button from "../common/Button";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { FaGoogle } from "react-icons/fa";
 import { useColorMode } from "@/context/ColorModeContext";
+import { isStrongPassword, PASSWORD_REQUIREMENTS_MESSAGE } from "@/lib/validation";
 
 interface RegisterProps {
   changeVariant: (variant: "login" | "register") => void;
@@ -21,7 +23,20 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
     lastName: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setIsGoogleLoading(true);
+    try {
+      await signIn("google", { callbackUrl: "/dashboard" });
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+      console.error("Google sign-in error:", error);
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,8 +53,8 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
       return;
     }
 
-    if (data.password.length < 8) {
-      setError("Password must be at least 8 characters");
+    if (!isStrongPassword(data.password)) {
+      setError(PASSWORD_REQUIREMENTS_MESSAGE);
       return;
     }
 
@@ -57,7 +72,7 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
         email: data.email,
         password: data.password,
         redirect: true,
-        callbackUrl: "/",
+        callbackUrl: "/dashboard",
       });
     } catch (error: any) {
       setError(
@@ -76,7 +91,7 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
       className={`p-4 sm:p-6 md:p-12 mt-4 sm:mt-6 md:mt-8 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md mx-auto ${
         actualColorMode === "light"
           ? "bg-white/95 border-gray-200 text-gray-900"
-          : "bg-gray-800/95 border-gray-700 text-white"
+          : "bg-zinc-900/95 border-zinc-700 text-white"
       }`}
       onSubmit={handleSubmit}
     >
@@ -105,11 +120,43 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
         </div>
       )}
 
+      <div className="mb-6">
+        <Button
+          className="w-full"
+          type="button"
+          disabled={isGoogleLoading || isLoading}
+          variant="secondary"
+          leftIcon={<FaGoogle />}
+          onClick={handleGoogleSignIn}
+        >
+          {isGoogleLoading ? "Redirecting..." : "Continue with Google"}
+        </Button>
+        <div className="flex items-center gap-3 mt-6">
+          <div
+            className={`flex-1 h-px ${
+              actualColorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
+            }`}
+          />
+          <span
+            className={`text-xs uppercase ${
+              actualColorMode === "light" ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            or
+          </span>
+          <div
+            className={`flex-1 h-px ${
+              actualColorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
+            }`}
+          />
+        </div>
+      </div>
+
       <div className="space-y-4">
         <Input
           type="text"
           name="firstName"
-          label="First Name"
+          label={<>First Name<span className="text-red-500 ml-1">*</span></>}
           onChange={handleChanges}
           value={data.firstName}
           required
@@ -117,7 +164,7 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
         <Input
           type="text"
           name="lastName"
-          label="Last Name"
+          label={<>Last Name<span className="text-red-500 ml-1">*</span></>}
           onChange={handleChanges}
           value={data.lastName}
           required
@@ -125,7 +172,7 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
         <Input
           type="email"
           name="email"
-          label="Email"
+          label={<>Email<span className="text-red-500 ml-1">*</span></>}
           onChange={handleChanges}
           value={data.email}
           required
@@ -133,22 +180,23 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
         <Input
           type="password"
           name="password"
-          label="Password"
+          label={<>Password<span className="text-red-500 ml-1">*</span></>}
           onChange={handleChanges}
           value={data.password}
           required
-          placeholder="At least 8 characters"
+          placeholder="At least 10 characters, with a letter and a number"
         />
       </div>
 
       <div className="mt-6">
         <Button
-          text={isLoading ? "Creating Account..." : "Sign Up"}
-          width="w-full"
+          className="w-full"
           type="submit"
           disabled={isLoading}
           variant="primary"
-        />
+        >
+          {isLoading ? "Creating Account..." : "Sign Up"}
+        </Button>
       </div>
 
       <footer className="w-full flex justify-center mt-6">
@@ -156,8 +204,8 @@ const Register: React.FC<RegisterProps> = ({ changeVariant, colorMode }) => {
           type="button"
           className={`text-sm font-medium transition-colors min-h-[44px] flex items-center justify-center px-4 py-2 rounded-lg -m-2 ${
             actualColorMode === "light"
-              ? "text-blue-600 hover:text-blue-700 active:text-blue-800"
-              : "text-blue-400 hover:text-blue-300 active:text-blue-200"
+              ? "text-zinc-600 hover:text-zinc-700 active:text-zinc-800"
+              : "text-zinc-400 hover:text-zinc-300 active:text-zinc-200"
           }`}
           onClick={() => changeVariant("login")}
         >

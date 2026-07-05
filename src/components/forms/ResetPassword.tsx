@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Input from "../common/Input";
-import Button from "../common/Button";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useColorMode } from "@/context/ColorModeContext";
 import { useRouter } from "next/navigation";
 import { IoLockClosedOutline, IoCheckmarkCircle } from "react-icons/io5";
+import { isStrongPassword, PASSWORD_REQUIREMENTS_MESSAGE } from "@/lib/validation";
 
 interface ResetPasswordProps {
   token: string;
@@ -37,8 +38,8 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long");
+    if (!isStrongPassword(password)) {
+      setError(PASSWORD_REQUIREMENTS_MESSAGE);
       return;
     }
 
@@ -78,7 +79,7 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
         className={`p-8 md:p-12 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
           actualColorMode === "light"
             ? "bg-white/95 border-gray-200 text-gray-900"
-            : "bg-gray-800/95 border-gray-700 text-white"
+            : "bg-zinc-900/95 border-zinc-700 text-white"
         }`}
       >
         <div className="text-center">
@@ -95,7 +96,7 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
           <Link
             href="/auth/login"
             className={`inline-block mt-4 text-sm font-medium ${
-              actualColorMode === "light" ? "text-blue-600 hover:text-blue-700" : "text-purple-400 hover:text-purple-300"
+              actualColorMode === "light" ? "text-zinc-600 hover:text-zinc-700" : "text-zinc-400 hover:text-zinc-300"
             }`}
           >
             Go to login now →
@@ -113,7 +114,7 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
       className={`p-8 md:p-12 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
         actualColorMode === "light"
           ? "bg-white/95 border-gray-200 text-gray-900"
-          : "bg-gray-800/95 border-gray-700 text-white"
+          : "bg-zinc-900/95 border-zinc-700 text-white"
       }`}
       onSubmit={handleSubmit}
     >
@@ -122,12 +123,12 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
           <div
             className={`p-3 rounded-full ${
               actualColorMode === "light"
-                ? "bg-blue-100"
-                : "bg-purple-900/30"
+                ? "bg-zinc-100"
+                : "bg-zinc-700/40"
             }`}
           >
             <IoLockClosedOutline className={`w-8 h-8 ${
-              actualColorMode === "light" ? "text-blue-600" : "text-purple-400"
+              actualColorMode === "light" ? "text-zinc-600" : "text-zinc-400"
             }`} />
           </div>
         </div>
@@ -157,19 +158,19 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
         <Input
           type="password"
           name="password"
-          label="New Password"
+          label={<>New Password<span className="text-red-500 ml-1">*</span></>}
           onChange={(e) => {
             setPassword(e.target.value);
             setError("");
           }}
           value={password}
           required
-          placeholder="At least 8 characters"
+          placeholder="At least 10 characters, with a letter and a number"
         />
         <Input
           type="password"
           name="confirmPassword"
-          label="Confirm New Password"
+          label={<>Confirm New Password<span className="text-red-500 ml-1">*</span></>}
           onChange={(e) => {
             setConfirmPassword(e.target.value);
             setError("");
@@ -182,12 +183,13 @@ const ResetPasswordForm: React.FC<ResetPasswordProps> = ({
 
       <div className="mt-6">
         <Button
-          text={isLoading ? "Resetting..." : "Reset Password"}
-          width="w-full"
+          className="w-full"
           type="submit"
           disabled={isLoading}
           variant="primary"
-        />
+        >
+          {isLoading ? "Resetting..." : "Reset Password"}
+        </Button>
       </div>
     </motion.form>
   );

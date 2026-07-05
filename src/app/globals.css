@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -2919,7 +2923,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+  background: linear-gradient(180deg, #4b5563, #6b7280);
   border-radius: 10px;
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -2936,7 +2940,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #8b5cf6, #a78bfa);
+  background: linear-gradient(180deg, #6b7280, #9ca3af);
   background-clip: padding-box;
 }
 
@@ -3626,46 +3630,44 @@ body {
 /* =============================================================================
    Application theme tokens
    - 3 main colors: background, surface, accent
-   - Light mode accent: blue
-   - Dark mode accent: dark purple
+   - Monochrome (zinc) palette; accent inverts contrast between light/dark
    ========================================================================== */
 
 :root {
   /* Default to dark theme to match initial SSR */
-  --app-bg-color: #020617;
-  /* slate-950 inspired background */
-  --app-surface-color: #0f172a;
-  /* slate-900 inspired surface */
-  --app-accent-color: #5b21b6;
-  /* purple-800 (dark purple) */
-  --app-accent-soft: rgba(91, 33, 182, 0.22);
-  --app-accent-contrast: #f9fafb;
-  /* near-white text on accent */
+  --app-bg-color: #09090b;
+  /* zinc-950 */
+  --app-surface-color: #18181b;
+  /* zinc-900 */
+  --app-accent-color: #a1a1aa;
+  /* zinc-400 */
+  --app-accent-soft: rgba(161, 161, 170, 0.18);
+  --app-accent-contrast: #09090b;
 }
 
 html[data-theme='light'] {
-  --app-bg-color: #f3f4ff;
-  /* soft blue-tinted background */
+  --app-bg-color: #f4f4f5;
+  /* zinc-100 */
   --app-surface-color: #ffffff;
   /* clean white cards */
-  --app-accent-color: #2563eb;
-  /* blue-600 */
-  --app-accent-soft: rgba(37, 99, 235, 0.12);
-  --app-accent-contrast: #0f172a;
-  /* slate-900 text on accent */
+  --app-accent-color: #27272a;
+  /* zinc-800 */
+  --app-accent-soft: rgba(39, 39, 42, 0.10);
+  --app-accent-contrast: #ffffff;
 }
 
 html[data-theme='dark'] {
-  --app-bg-color: #020617;
-  /* deep navy/graphite */
-  --app-surface-color: #0f172a;
-  /* slightly lighter surface */
-  --app-accent-color: #5b21b6;
-  /* rich dark purple */
-  --app-accent-soft: rgba(91, 33, 182, 0.22);
-  --app-accent-contrast: #f9fafb;
+  --app-bg-color: #09090b;
+  /* zinc-950 */
+  --app-surface-color: #18181b;
+  /* zinc-900 */
+  --app-accent-color: #a1a1aa;
+  /* zinc-400 */
+  --app-accent-soft: rgba(161, 161, 170, 0.18);
+  --app-accent-contrast: #09090b;
   /* prevent nav/sidebar borders inheriting white */
-  --app-border-dark: #374151;
+  --app-border-dark: #3f3f46;
+  /* zinc-700 */
 }
 
 html[data-theme='dark'] nav[class*="border"],
@@ -3675,7 +3677,7 @@ html[data-theme='dark'] aside[class*="border"] {
 
 body {
   background-color: var(--app-bg-color);
-  color: #0f172a;
+  color: #18181b;
 }
 
 html[data-theme='dark'] body {

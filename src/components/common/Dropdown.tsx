@@ -34,7 +34,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         className={`h-auto w-full border font-medium rounded-lg overflow-hidden ${
           colorMode === "light"
             ? "bg-white border-gray-300 text-gray-900"
-            : "bg-gray-800 border-gray-600 text-gray-100"
+            : "bg-zinc-800 border-gray-600 text-gray-100"
           }`}
       >
         <div
@@ -70,8 +70,8 @@ const Dropdown: React.FC<DropdownProps> = ({
                     }}
                     className={`${
                       colorMode === "light"
-                        ? "hover:bg-gray-200"
-                        : "hover:bg-gray-700"
+                        ? "hover:bg-zinc-200"
+                        : "hover:bg-zinc-700"
                     } cursor-pointer p-2`}
                   >
                     {item}

@@ -1,5 +1,5 @@
 import React from "react";
-import Badge from "../common/Badge";
+import Badge from "@/components/ui/Badge";
 import { useColorMode } from "@/context/ColorModeContext";
 import { motion } from "framer-motion";
 import { 
@@ -60,8 +60,8 @@ const Clock: React.FC<ClockProps> = ({ status, market, time, timezone }) => {
       whileHover={{ scale: 1.02 }}
       className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-all duration-200 ${
         colorMode === "light"
-          ? "bg-gray-50/80 hover:bg-gray-100/80 backdrop-blur-sm"
-          : "bg-gray-700/30 hover:bg-gray-700/50 backdrop-blur-sm"
+          ? "bg-zinc-50/80 hover:bg-zinc-100/80 backdrop-blur-sm"
+          : "bg-zinc-700/30 hover:bg-zinc-700/50 backdrop-blur-sm"
       } ${config.pulse ? "ring-1 ring-green-400/50" : ""}`}
     >
       <FaClock className={`text-[10px] ${
@@ -81,11 +81,9 @@ const Clock: React.FC<ClockProps> = ({ status, market, time, timezone }) => {
       </span>
       
       <div className="ml-auto">
-        <Badge 
-          color={config.color} 
-          text={config.label}
-          variant="solid"
-        />
+        <Badge size="sm" className={`${config.color} text-white`}>
+          {config.label.toUpperCase()}
+        </Badge>
       </div>
     </motion.div>
   );

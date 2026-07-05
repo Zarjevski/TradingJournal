@@ -51,11 +51,11 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
               className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-center gap-2 ${
                 isSelected
                   ? colorMode === "light"
-                    ? "bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-200"
-                    : "bg-purple-900/30 border-purple-500 text-purple-300 ring-2 ring-purple-700"
+                    ? "bg-zinc-900 border-zinc-900 text-white ring-2 ring-zinc-300"
+                    : "bg-zinc-100 border-zinc-100 text-zinc-900 ring-2 ring-zinc-500"
                   : colorMode === "light"
-                  ? "bg-white border-gray-300 text-gray-700 hover:border-gray-400"
-                  : "bg-gray-700/50 border-gray-600 text-gray-300 hover:border-gray-500"
+                  ? "bg-white border-zinc-300 text-gray-700 hover:border-zinc-400"
+                  : "bg-zinc-700/50 border-zinc-600 text-gray-300 hover:border-zinc-500"
               }`}
             >
               {option.icon && <span>{option.icon}</span>}

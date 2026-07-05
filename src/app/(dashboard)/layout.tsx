@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "@/components/sidebar/Sidebar";
 import Navbar from "@/components/navbar/Navbar";
-import Modal from "@/components/common/Modal";
+import GlobalModal from "@/components/common/GlobalModal";
 import { useColorMode } from "@/context/ColorModeContext";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -42,7 +42,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <Modal />
+      <GlobalModal />
       <main
         className={`min-h-screen transition-colors duration-300 app-bg`}
       >
@@ -50,7 +50,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           mobileSidebarOpen={mobileSidebarOpen}
           onMobileSidebarToggle={() => setMobileSidebarOpen((prev) => !prev)}
         />
-        <section className="flex relative h-[92vh]">
+        <section className="flex relative h-[calc(100vh-4rem)]">
           <Sidebar
             mobileOpen={mobileSidebarOpen}
             onMobileClose={() => setMobileSidebarOpen(false)}

@@ -149,9 +149,9 @@ const UserDetails = ({
         return {
           label: "Neutral",
           icon: FaMinus,
-          color: "text-gray-500",
-          bgColor: colorMode === "light" ? "bg-gray-100" : "bg-gray-800",
-          borderColor: "border-gray-500",
+          color: "text-zinc-500",
+          bgColor: colorMode === "light" ? "bg-zinc-100" : "bg-zinc-800",
+          borderColor: "border-zinc-500",
         };
     }
   };
@@ -160,12 +160,12 @@ const UserDetails = ({
     <div
       className={`
         w-full border-b transition-colors duration-200
-        ${colorMode === "light" ? "border-gray-300" : "border-gray-700"}
+        ${colorMode === "light" ? "border-zinc-300" : "border-zinc-700"}
       `}
     >
       {/* Toggle Button (hidden on mobile overlay) */}
       {!hideToggle && (
-        <div className={`h-14 border-b flex w-full justify-end ${colorMode === "light" ? "border-gray-300" : "border-gray-700"}`}>
+        <div className={`h-14 border-b flex w-full justify-end ${colorMode === "light" ? "border-zinc-300" : "border-zinc-700"}`}>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -174,8 +174,8 @@ const UserDetails = ({
               ${isOpen ? "w-full flex justify-end p-4 items-center" : "w-full flex items-center justify-center p-4"}
               ${
                 colorMode === "light"
-                  ? "hover:bg-gray-100 text-gray-700 active:bg-gray-200"
-                  : "hover:bg-gray-800/80 text-gray-200 active:bg-gray-700/80 border border-transparent hover:border-gray-600/50"
+                  ? "hover:bg-zinc-100 text-zinc-700 active:bg-zinc-200"
+                  : "hover:bg-zinc-800/80 text-zinc-200 active:bg-zinc-700/80 border border-transparent hover:border-zinc-600/50"
               }
               cursor-pointer transition-colors duration-200 rounded-lg m-1
             `}
@@ -221,14 +221,14 @@ const UserDetails = ({
             <div
               className={`
                 ${isOpen ? "w-20 h-20" : "w-12 h-12"} rounded-full
-                ${colorMode === "light" ? "bg-gray-200" : "bg-gray-700"}
+                ${colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"}
               `}
             />
           ) : photoPreview || data.user?.photoURL ? (
             <div className={`relative ${isOpen ? "w-20 h-20" : "w-12 h-12"} group`}>
               <div className={`
                 ${isOpen ? "w-20 h-20" : "w-12 h-12"} rounded-full border-2 overflow-hidden shadow-lg
-                ${colorMode === "light" ? "border-blue-300" : "border-purple-500"}
+                ${colorMode === "light" ? "border-zinc-300" : "border-zinc-500"}
               `}>
                 <Image
                   src={photoPreview || data.user?.photoURL || ""}
@@ -251,7 +251,7 @@ const UserDetails = ({
                     animate={{ scale: 1 }}
                     className={`
                       absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2
-                      ${colorMode === "light" ? "bg-green-500 border-white" : "bg-green-500 border-gray-900"}
+                      ${colorMode === "light" ? "bg-green-500 border-white" : "bg-green-500 border-zinc-900"}
                     `}
                   />
                 </>
@@ -264,8 +264,8 @@ const UserDetails = ({
                 shadow-lg border-2 group cursor-pointer
                 ${
                   colorMode === "light"
-                    ? "bg-gradient-to-br from-blue-400 to-blue-600 border-blue-300 text-white"
-                    : "bg-gradient-to-br from-purple-500 to-purple-700 border-purple-500 text-white"
+                    ? "bg-gradient-to-br from-zinc-700 to-zinc-900 border-zinc-300 text-white"
+                    : "bg-gradient-to-br from-zinc-300 to-zinc-100 border-zinc-500 text-zinc-900"
                 }
               `}
             >
@@ -304,7 +304,7 @@ const UserDetails = ({
                 <h6
                   className={`
                     text-sm font-bold capitalize mb-2 text-center
-                    ${colorMode === "light" ? "text-gray-900" : "text-white"}
+                    ${colorMode === "light" ? "text-zinc-900" : "text-white"}
                   `}
                 >
                   {fullName}
@@ -345,7 +345,7 @@ const UserDetails = ({
           {photoPreview || data.user?.photoURL ? (
             <div className="flex flex-col items-center space-y-4">
               <div className={`relative w-32 h-32 rounded-full overflow-hidden border-2 ${
-                colorMode === "light" ? "border-gray-300" : "border-gray-600"
+                colorMode === "light" ? "border-zinc-300" : "border-zinc-600"
               }`}>
                 <Image
                   src={photoPreview || data.user?.photoURL || ""}
@@ -376,7 +376,7 @@ const UserDetails = ({
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-4">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 flex items-center justify-center text-white text-4xl font-bold">
                 {data.user?.firstName?.[0]?.toUpperCase() || "U"}
                 {data.user?.lastName?.[0]?.toUpperCase()}
               </div>
@@ -399,7 +399,7 @@ const UserDetails = ({
           />
           {isUploading && (
             <div className={`text-center text-sm ${
-              colorMode === "light" ? "text-gray-500" : "text-gray-400"
+              colorMode === "light" ? "text-zinc-500" : "text-zinc-400"
             }`}>
               Uploading...
             </div>

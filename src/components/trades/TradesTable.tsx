@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "../common/Button";
+import Button from "@/components/ui/Button";
 import Trade from "@/components/trades/Trade";
 import TableHeader from "./TableHeader";
 import useNewTradeForm from "@/hooks/useNewTradeForm";
@@ -31,7 +31,7 @@ const TradesTable: React.FC<TradesTableProps> = ({
       className={`rounded-lg overflow-hidden col-start-1 col-span-3 w-full h-full border shadow-lg backdrop-blur-sm ${
         colorMode === "light"
           ? "text-gray-900 bg-white/95 border-gray-200"
-          : "bg-gray-800/95 text-white border-gray-700"
+          : "bg-zinc-800/95 text-white border-gray-700"
       }`}
     >
       <header className={`py-3 px-6 capitalize border-b flex justify-between items-center bg-gradient-to-r ${
@@ -43,7 +43,7 @@ const TradesTable: React.FC<TradesTableProps> = ({
           {Icon ? <Icon className="w-5 h-5 mr-2" /> : null}
           {title}
         </h1>
-        <Button text="+ New Trade" onClick={() => newTrade()} />
+        <Button onClick={() => newTrade()}>+ New Trade</Button>
       </header>
       {loading ? (
         [1, 2, 3, 4, 5].map((item, index) => {

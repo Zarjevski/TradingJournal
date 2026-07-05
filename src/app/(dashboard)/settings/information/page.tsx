@@ -7,8 +7,8 @@ import { FaSpinner } from "react-icons/fa";
 import { useUserContext } from "@/context/UserContext";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import Button from "@/components/common/Button";
-import Input from "@/components/common/Input";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Skeleton from "@/components/common/Skeleton";
@@ -155,13 +155,20 @@ const Page = () => {
     }
   };
 
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      })
+    : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       className="w-full h-full p-3 md:p-6 overflow-y-auto app-bg"
     >
-      <div className="mb-4 md:mb-6">
+      <div className="mb-6 md:mb-8">
         <h1 className="text-2xl xs:text-3xl font-bold mb-1 md:mb-2">User Information</h1>
         <p className={`text-xs xs:text-sm ${
           colorMode === "light" ? "text-gray-600" : "text-gray-400"
@@ -170,131 +177,134 @@ const Page = () => {
         </p>
       </div>
 
-      {/* Profile Picture */}
-      <div className="flex items-center justify-center mb-6 md:mb-8">
-        <div className="relative">
-          <div
-            className={`relative rounded-full h-32 w-32 border-2 flex items-center justify-center overflow-hidden group ${
-              colorMode === "light"
-                ? "bg-gray-100 border-gray-300"
-                : "bg-gray-700 border-gray-600"
-            }`}
-          >
-            {isLoading ? (
-              <Skeleton width="w-full" hieght="h-full" />
-            ) : photoPreview || photoUrl || user?.photoURL ? (
-              <>
-                <Image
-                  src={photoPreview || photoUrl || user?.photoURL || ""}
-                  alt="Profile"
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 md:group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleRemovePhoto}
-                    className="opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-red-500 text-white p-2.5 rounded-full transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
-                    type="button"
-                    aria-label="Remove photo"
-                  >
-                    <MdDelete className="text-xl" />
-                  </motion.button>
+      <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+        {/* Profile Picture */}
+        <div className="flex flex-col items-center flex-shrink-0 md:w-48">
+          <div className="relative">
+            <div
+              className={`relative rounded-full h-28 w-28 border-2 flex items-center justify-center overflow-hidden group ${
+                colorMode === "light"
+                  ? "bg-zinc-100 border-gray-300"
+                  : "bg-zinc-700 border-gray-600"
+              }`}
+            >
+              {isLoading ? (
+                <Skeleton width="w-full" hieght="h-full" />
+              ) : photoPreview || photoUrl || user?.photoURL ? (
+                <>
+                  <Image
+                    src={photoPreview || photoUrl || user?.photoURL || ""}
+                    alt="Profile"
+                    width={112}
+                    height={112}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 md:group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleRemovePhoto}
+                      className="opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-red-500 text-white p-2.5 rounded-full transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                      type="button"
+                      aria-label="Remove photo"
+                    >
+                      <MdDelete className="text-xl" />
+                    </motion.button>
+                  </div>
+                </>
+              ) : (
+                <div
+                  className={`w-full h-full flex items-center justify-center text-4xl font-bold ${
+                    colorMode === "light" ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  {user?.firstName?.[0]?.toUpperCase() || "U"}
                 </div>
-              </>
-            ) : (
-              <div
-                className={`w-full h-full flex items-center justify-center text-4xl font-bold ${
-                  colorMode === "light" ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                {user?.firstName?.[0]?.toUpperCase() || "U"}
-              </div>
-            )}
+              )}
+            </div>
+            <label
+              htmlFor="photo-upload"
+              className={`absolute bottom-0 right-0 p-2.5 rounded-full border-2 cursor-pointer transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
+                isUploadingPhoto
+                  ? "opacity-50 cursor-not-allowed"
+                  : colorMode === "light"
+                  ? "bg-white border-gray-300 hover:bg-zinc-50"
+                  : "bg-zinc-800 border-gray-600 hover:bg-zinc-700"
+              }`}
+            >
+              {isUploadingPhoto ? (
+                <FaSpinner className="text-lg animate-spin" />
+              ) : (
+                <MdOutlineFileUpload className="text-lg" />
+              )}
+              <input
+                ref={fileInputRef}
+                id="photo-upload"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+                disabled={isUploadingPhoto}
+              />
+            </label>
           </div>
-          <label
-            htmlFor="photo-upload"
-            className={`absolute bottom-0 right-0 p-2.5 rounded-full border-2 cursor-pointer transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
-              isUploadingPhoto
-                ? "opacity-50 cursor-not-allowed"
-                : colorMode === "light"
-                ? "bg-white border-gray-300 hover:bg-gray-50"
-                : "bg-gray-800 border-gray-600 hover:bg-gray-700"
-            }`}
-          >
-            {isUploadingPhoto ? (
-              <FaSpinner className="text-lg animate-spin" />
-            ) : (
-              <MdOutlineFileUpload className="text-lg" />
-            )}
-            <input
-              ref={fileInputRef}
-              id="photo-upload"
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="hidden"
-              disabled={isUploadingPhoto}
+          {memberSince && (
+            <p className={`mt-4 text-xs text-center ${
+              colorMode === "light" ? "text-gray-500" : "text-gray-400"
+            }`}>
+              Member since {memberSince}
+            </p>
+          )}
+        </div>
+
+        {/* Form */}
+        <form
+          onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }}
+          className="flex-1 space-y-6 max-w-xl"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              type="text"
+              label={<>First Name<span className="text-red-500 ml-1">*</span></>}
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleInputChange}
+              placeholder="Enter your first name"
+              required
             />
-          </label>
-        </div>
-      </div>
+            <Input
+              type="text"
+              label={<>Last Name<span className="text-red-500 ml-1">*</span></>}
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              placeholder="Enter your last name"
+              required
+            />
+          </div>
 
-      {/* Form */}
-      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            type="text"
-            label="First Name"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            placeholder="Enter your first name"
-            required
-          />
-          <Input
-            type="text"
-            label="Last Name"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            placeholder="Enter your last name"
-            required
-          />
-        </div>
-
-        <div>
-          <label className={`block text-sm font-medium mb-2 ${
-            colorMode === "light" ? "text-gray-700" : "text-gray-300"
-          }`}>
-            Email
-          </label>
-          <input
             type="email"
+            label="Email"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
             placeholder="Enter your email"
             disabled
-            className={`w-full px-4 py-2 rounded-lg border transition-all duration-200 ${
-              colorMode === "light"
-                ? "bg-gray-50 border-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-700/50 border-gray-600 text-gray-400 cursor-not-allowed"
-            }`}
+            className="disabled:opacity-60 disabled:cursor-not-allowed"
           />
-        </div>
 
-        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-4 border-t">
-          <Button
-            text={isSubmitting ? "Saving..." : "Save Changes"}
-            onClick={() => {}}
-            disabled={isSubmitting || isLoading}
-            type="submit"
-          />
-        </div>
-      </form>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-4 border-t">
+            <Button
+              onClick={() => {}}
+              disabled={isSubmitting || isLoading}
+              type="submit"
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </motion.div>
   );
 };

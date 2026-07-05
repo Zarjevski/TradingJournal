@@ -1,4 +1,4 @@
-import Favicon from "@/assets/favicon.png";
+import Favicon from "@/assets/favicon.ico";
 
 const showNotification = (body: string, title: string) => {
   Notification.requestPermission();

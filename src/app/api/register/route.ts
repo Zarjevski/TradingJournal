@@ -1,9 +1,19 @@
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isValidEmail, isStrongPassword, PASSWORD_REQUIREMENTS_MESSAGE } from "@/lib/validation";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request.headers);
+    if (!checkRateLimit(`register:${ip}`, 5, 60_000)) {
+      return NextResponse.json(
+        { error: "Too many registration attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email, firstName, lastName, password } = body;
 
@@ -14,9 +24,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (password.length < 8) {
+    if (!isValidEmail(email)) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    if (!isStrongPassword(password)) {
+      return NextResponse.json(
+        { error: PASSWORD_REQUIREMENTS_MESSAGE },
         { status: 400 }
       );
     }

@@ -55,14 +55,14 @@ This guide will help you connect your Trading Journal application to MongoDB Atl
 
    ```env
    # MongoDB Atlas Connection String
-   DATABASE_URL="mongodb+srv://tradingjournal:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/trading-journal?retryWrites=true&w=majority"
+   DATABASE_URL="mongodb+srv://tradingjournal:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/tradediary?retryWrites=true&w=majority"
    ```
 
    **Important points:**
    - Replace `<username>` with your database username
    - Replace `<password>` with your database password (URL encode special characters if needed)
    - Replace `cluster0.xxxxx` with your actual cluster name
-   - Add `/trading-journal` before the `?` to specify the database name
+   - Add `/tradediary` before the `?` to specify the database name
    - Keep the query parameters (`?retryWrites=true&w=majority`)
 
 3. **URL Encoding Special Characters:**
@@ -136,7 +136,7 @@ If you see errors like `received fatal alert: InternalError` or `Server selectio
 3. **Update Connection String Parameters:**
    Add these parameters to your connection string for better reliability:
    ```
-   mongodb+srv://username:password@cluster.mongodb.net/trading-journal?retryWrites=true&w=majority&ssl=true&tlsAllowInvalidCertificates=false
+   mongodb+srv://username:password@cluster.mongodb.net/tradediary?retryWrites=true&w=majority&ssl=true&tlsAllowInvalidCertificates=false
    ```
 
 4. **Check MongoDB Atlas Cluster Status:**
@@ -184,7 +184,7 @@ If you see errors like `received fatal alert: InternalError` or `Server selectio
 
 ```env
 # MongoDB Atlas Connection
-DATABASE_URL="mongodb+srv://tradingjournal:MySecurePassword123@cluster0.abc123.mongodb.net/trading-journal?retryWrites=true&w=majority"
+DATABASE_URL="mongodb+srv://tradingjournal:MySecurePassword123@cluster0.abc123.mongodb.net/tradediary?retryWrites=true&w=majority"
 
 # NextAuth Configuration
 NEXTAUTH_SECRET="your-secret-key-here"

@@ -49,7 +49,7 @@ export default async function TradeDetailsPage({ params }: PageProps) {
         },
         comments: {
           take: 50,
-          orderBy: { id: "desc" },
+          orderBy: { createdAt: "desc" },
           include: {
             owner: {
               select: {
@@ -81,6 +81,7 @@ export default async function TradeDetailsPage({ params }: PageProps) {
       createdAt: trade.createdAt.toISOString(),
       comments: trade.comments.map((comment: any) => ({
         ...comment,
+        createdAt: comment.createdAt.toISOString(),
       })),
     };
 

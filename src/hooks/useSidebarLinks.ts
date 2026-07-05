@@ -1,16 +1,18 @@
-import { IoHomeOutline, IoAnalyticsOutline, IoSettingsOutline, IoFileTrayFullOutline, IoPeopleOutline, IoTrophyOutline, IoPersonAddOutline } from "react-icons/io5";
+import { IoHomeOutline, IoAnalyticsOutline, IoSettingsOutline, IoFileTrayFullOutline, IoPeopleOutline, IoWalletOutline, IoSchoolOutline, IoNewspaperOutline } from "react-icons/io5";
+import { LEARN_MODULE_ENABLED } from "@/lib/constants";
 
 interface SidebarLink {
   title: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
+  locked?: boolean;
 }
 
 const useSidebarLinks = (): SidebarLink[] => {
   const links: SidebarLink[] = [
     {
       title: "Home",
-      path: "/",
+      path: "/dashboard",
       icon: IoHomeOutline
     },
     {
@@ -24,18 +26,24 @@ const useSidebarLinks = (): SidebarLink[] => {
       icon: IoFileTrayFullOutline
     },
     {
-      title: "Leaderboards",
-      path: "/leaderboard",
-      icon: IoTrophyOutline
+      title: "Accounts",
+      path: "/accounts",
+      icon: IoWalletOutline
     },
     {
-      title: "Friends",
-      path: "/friends",
-      icon: IoPersonAddOutline
+      title: "News",
+      path: "/news",
+      icon: IoNewspaperOutline
     },
     {
-      title: "Team",
-      path: "/team",
+      title: "Learn",
+      path: "/learn",
+      icon: IoSchoolOutline,
+      locked: !LEARN_MODULE_ENABLED
+    },
+    {
+      title: "Community",
+      path: "/community",
       icon: IoPeopleOutline
     },
     {

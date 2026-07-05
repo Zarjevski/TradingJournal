@@ -59,8 +59,8 @@ const Sidebar = ({ mobileOpen = false, onMobileClose }: SidebarProps) => {
           text-red-500 hover:text-red-600 font-semibold
           ${
             colorMode === "light"
-              ? "hover:bg-red-50/80 border-gray-300 active:bg-red-100"
-              : "hover:bg-red-900/30 border-gray-700 active:bg-red-900/40"
+              ? "hover:bg-red-50/80 border-zinc-300 active:bg-red-100"
+              : "hover:bg-red-900/30 border-zinc-700 active:bg-red-900/40"
           }
           ${!options.isOpen ? "justify-center" : "px-4"}
         `}
@@ -89,11 +89,11 @@ const Sidebar = ({ mobileOpen = false, onMobileClose }: SidebarProps) => {
 
   const baseSidebarClasses = `
     flex flex-col justify-between transition-all duration-300 ease-in-out
-    border-r shadow-xl overflow-hidden
+    border-r shadow-sm overflow-hidden
     ${
       colorMode === "light"
-        ? "text-gray-900 bg-white/98 backdrop-blur-md border-gray-300"
-        : "bg-gray-900/98 text-white border-gray-700 backdrop-blur-md"
+        ? "text-zinc-900 bg-white/98 backdrop-blur-md border-zinc-200"
+        : "bg-zinc-950/98 text-white border-zinc-800 backdrop-blur-md"
     }
   `;
 
@@ -104,7 +104,7 @@ const Sidebar = ({ mobileOpen = false, onMobileClose }: SidebarProps) => {
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className={`hidden md:flex flex-col sticky top-[8vh] h-[92vh] ${isOpen ? "w-64" : "w-20"} ${baseSidebarClasses}`}
+        className={`hidden md:flex flex-col sticky top-16 h-[calc(100vh-4rem)] ${isOpen ? "w-64" : "w-20"} ${baseSidebarClasses}`}
       >
         {sidebarContent}
       </motion.aside>

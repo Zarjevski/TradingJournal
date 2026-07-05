@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { isStrongPassword, PASSWORD_REQUIREMENTS_MESSAGE } from "@/lib/validation";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request.headers);
+    if (!checkRateLimit(`reset-password:${ip}`, 3, 60_000)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { token, password } = body;
 
@@ -14,9 +24,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!password || typeof password !== "string" || password.length < 8) {
+    if (!isStrongPassword(password)) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters long" },
+        { error: PASSWORD_REQUIREMENTS_MESSAGE },
         { status: 400 }
       );
     }

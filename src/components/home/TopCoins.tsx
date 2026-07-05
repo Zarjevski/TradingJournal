@@ -24,7 +24,7 @@ const TopCoins = () => {
       className={`rounded w-full border overflow-hidden flex flex-col ${
         colorMode === "light"
           ? "text-black bg-white border-gray-200"
-          : "bg-gray-900 text-white border-white/20"
+          : "bg-zinc-900 text-white border-white/20"
       }`}
     >
       <header className="py-2 px-4 h-10 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">

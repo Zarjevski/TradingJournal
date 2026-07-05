@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Input from "../common/Input";
-import Button from "../common/Button";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useColorMode } from "@/context/ColorModeContext";
@@ -64,7 +64,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorMod
         className={`p-8 md:p-12 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
           actualColorMode === "light"
             ? "bg-white/95 border-gray-200 text-gray-900"
-            : "bg-gray-800/95 border-gray-700 text-white"
+            : "bg-zinc-900/95 border-zinc-700 text-white"
         }`}
       >
         <div className="text-center">
@@ -75,16 +75,16 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorMod
               actualColorMode === "light" ? "text-gray-600" : "text-gray-400"
             }`}
           >
-            We've sent a password reset link to your email address. Please
+            We&apos;ve sent a password reset link to your email address. Please
             check your inbox and follow the instructions to reset your password.
           </p>
           <p className={`text-xs ${actualColorMode === "light" ? "text-gray-500" : "text-gray-400"}`}>
-            Didn't receive the email? Check your spam folder or try again.
+            Didn&apos;t receive the email? Check your spam folder or try again.
           </p>
           <Link
             href="/auth/login"
             className={`inline-block mt-4 text-sm font-medium ${
-              actualColorMode === "light" ? "text-blue-600 hover:text-blue-700" : "text-purple-400 hover:text-purple-300"
+              actualColorMode === "light" ? "text-zinc-600 hover:text-zinc-700" : "text-zinc-400 hover:text-zinc-300"
             }`}
           >
             ← Back to login
@@ -102,7 +102,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorMod
       className={`p-8 md:p-12 border rounded-xl shadow-2xl backdrop-blur-sm w-full max-w-md ${
         actualColorMode === "light"
           ? "bg-white/95 border-gray-200 text-gray-900"
-          : "bg-gray-800/95 border-gray-700 text-white"
+          : "bg-zinc-900/95 border-zinc-700 text-white"
       }`}
       onSubmit={handleSubmit}
     >
@@ -111,12 +111,12 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorMod
           <div
             className={`p-3 rounded-full ${
               actualColorMode === "light"
-                ? "bg-blue-100"
-                : "bg-purple-900/30"
+                ? "bg-zinc-100"
+                : "bg-zinc-700/40"
             }`}
           >
             <IoMailOutline className={`w-8 h-8 ${
-              actualColorMode === "light" ? "text-blue-600" : "text-purple-400"
+              actualColorMode === "light" ? "text-zinc-600" : "text-zinc-400"
             }`} />
           </div>
         </div>
@@ -126,7 +126,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorMod
             actualColorMode === "light" ? "text-gray-600" : "text-gray-400"
           }`}
         >
-          Enter your email address and we'll send you a link to reset your
+          Enter your email address and we&apos;ll send you a link to reset your
           password
         </h2>
       </header>
@@ -147,7 +147,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorMod
         <Input
           type="email"
           name="email"
-          label="Email Address"
+          label={<>Email Address<span className="text-red-500 ml-1">*</span></>}
           onChange={(e) => {
             setEmail(e.target.value);
             setError("");
@@ -160,12 +160,13 @@ const ForgotPasswordForm: React.FC<ForgotPasswordProps> = ({ colorMode: colorMod
 
       <div className="mt-6">
         <Button
-          text={isLoading ? "Sending..." : "Send Reset Link"}
-          width="w-full"
+          className="w-full"
           type="submit"
           disabled={isLoading}
           variant="primary"
-        />
+        >
+          {isLoading ? "Sending..." : "Send Reset Link"}
+        </Button>
       </div>
     </motion.form>
   );

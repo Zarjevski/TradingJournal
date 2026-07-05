@@ -4,7 +4,7 @@ import React from "react";
 import { IoChevronBackOutline, IoCloseOutline } from "react-icons/io5";
 import ChatList, { type ConversationItem, type FriendWithPresence } from "./ChatList";
 import ChatThread, { type ChatMessage } from "./ChatThread";
-import Button from "../common/Button";
+import Button from "@/components/ui/Button";
 
 interface ChatPanelProps {
   onClose: () => void;
@@ -39,23 +39,17 @@ export default function ChatPanel({
   onSendMessage,
   isDark = true,
 }: ChatPanelProps) {
-  const bg = isDark ? "bg-slate-900" : "bg-white";
-  const headerBg = isDark ? "bg-slate-800" : "bg-gray-50";
-  const border = isDark ? "border-gray-600" : "border-gray-400";
-  const text = isDark ? "text-slate-100" : "text-gray-900";
-  const muted = isDark ? "text-slate-400" : "text-gray-500";
-  const hover = isDark ? "hover:bg-slate-700" : "hover:bg-gray-100";
+  const bg = isDark ? "bg-zinc-900" : "bg-white";
+  const headerBg = isDark ? "bg-zinc-800/60" : "bg-zinc-50";
+  const border = isDark ? "border-zinc-700" : "border-zinc-200";
+  const text = isDark ? "text-gray-100" : "text-gray-900";
+  const muted = isDark ? "text-gray-400" : "text-gray-500";
   const inChatView = !!selectedFriend && !!selectedConversationId;
 
   return (
     <div
-      className={`w-[360px] min-w-[360px] max-w-[360px] rounded-lg shadow-2xl border-2 ${border} ${bg} flex flex-col overflow-hidden shrink-0`}
-      style={{
-        height: 420,
-        maxHeight: 420,
-        overflow: "hidden",
-        ...(isDark ? { boxShadow: "0 10px 40px rgba(0,0,0,0.5)", backgroundColor: "#0f172a" } : { boxShadow: "0 10px 40px rgba(0,0,0,0.3)" }),
-      }}
+      className={`w-[360px] min-w-[360px] max-w-[360px] rounded-xl shadow-2xl border ${border} ${bg} flex flex-col overflow-hidden shrink-0`}
+      style={{ height: 420, maxHeight: 420, overflow: "hidden" }}
     >
       <header className={`flex items-center justify-between gap-2 px-3 py-2 border-b ${border} ${headerBg} shrink-0 min-h-[48px]`}>
         <div className="flex items-center gap-2 min-w-0">
@@ -63,12 +57,12 @@ export default function ChatPanel({
             <Button
               type="button"
               onClick={onReturn}
-              text="Back to friends"
               variant="secondary"
-              icon={IoChevronBackOutline}
-              iconOnly
-              className="shrink-0"
-            />
+              aria-label="Back to friends"
+              className="p-2.5 min-h-[44px] min-w-[44px] shrink-0"
+            >
+              <IoChevronBackOutline className="w-5 h-5" />
+            </Button>
           ) : (
             <h2 className={`font-semibold ${text} truncate`}>Chats</h2>
           )}
@@ -78,15 +72,16 @@ export default function ChatPanel({
             {selectedFriend.firstName} {selectedFriend.lastName}
           </span>
         )}
-        <Button
+        <button
           type="button"
           onClick={onClose}
-          text="Close"
-          variant="secondary"
-          icon={IoCloseOutline}
-          iconOnly
-          className="shrink-0"
-        />
+          aria-label="Close"
+          className={`flex items-center justify-center h-6 w-6 rounded-md transition-colors shrink-0 ${
+            isDark ? "text-gray-400 hover:bg-zinc-700 hover:text-gray-200" : "text-gray-500 hover:bg-zinc-200 hover:text-gray-700"
+          }`}
+        >
+          <IoCloseOutline className="w-4 h-4" />
+        </button>
       </header>
 
       {/* Fixed-height content area: same size for friends list and chat (scrolls internally) */}
@@ -95,7 +90,7 @@ export default function ChatPanel({
         style={{ height: 372, maxHeight: 372, overflow: "hidden" }}
       >
         {openingFriendId ? (
-          <div className="flex-1 flex items-center justify-center text-sm ${muted}">
+          <div className={`flex-1 flex items-center justify-center text-sm ${muted}`}>
             Opening conversation...
           </div>
         ) : inChatView && selectedFriend && selectedConversationId ? (

@@ -3,7 +3,7 @@ version: "3.1"
 services:
   database:
     image: mongo:7.0
-    container_name: trading-journal-mongo
+    container_name: tradediary-mongo
     command: "--bind_ip_all --replSet rs0"
     restart: always
     env_file:

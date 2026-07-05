@@ -13,6 +13,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { motion } from "framer-motion";
 import type { Trade } from "@/types";
+import { formatShortDate } from "@/lib/dateFormat";
 import Skeleton from "../common/Skeleton";
 
 ChartJS.register(
@@ -59,7 +60,7 @@ const AccountGrow = ({ colorMode, trades, isLoading = false }: AccountGrowProps)
     // Generate labels (dates)
     const labels = sortedTrades.map((trade) => {
       const date = new Date(trade.date || trade.createdAt);
-      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      return formatShortDate(date);
     });
 
     return {

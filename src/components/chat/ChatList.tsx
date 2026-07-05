@@ -78,12 +78,12 @@ export default function ChatList({
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 
-  const border = isDark ? "border-gray-600" : "border-gray-200";
-  const hover = isDark ? "hover:bg-slate-700" : "hover:bg-gray-100";
-  const selected = isDark ? "bg-slate-700" : "bg-gray-100";
-  const text = isDark ? "text-slate-100" : "text-gray-900";
-  const textMuted = isDark ? "text-slate-400" : "text-gray-500";
-  const listBg = isDark ? "bg-slate-900" : "bg-white";
+  const border = isDark ? "border-zinc-800" : "border-zinc-100";
+  const hover = isDark ? "hover:bg-zinc-800" : "hover:bg-zinc-50";
+  const selected = isDark ? "bg-zinc-800" : "bg-zinc-100";
+  const text = isDark ? "text-gray-100" : "text-gray-900";
+  const textMuted = isDark ? "text-gray-400" : "text-gray-500";
+  const listBg = isDark ? "bg-zinc-900" : "bg-white";
 
   return (
     <div className={`flex flex-col h-full min-h-0 overflow-hidden w-full ${listBg}`}>
@@ -117,7 +117,7 @@ export default function ChatList({
                   ) : (
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                        isDark ? "bg-slate-600 text-slate-200" : "bg-gray-300 text-gray-700"
+                        isDark ? "bg-zinc-700 text-gray-200" : "bg-zinc-200 text-gray-700"
                       }`}
                     >
                       {(item.friend.firstName?.[0] || "") + (item.friend.lastName?.[0] || "")}
@@ -125,7 +125,9 @@ export default function ChatList({
                   )}
                   {isOnline && (
                     <span
-                      className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-slate-900"
+                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 ${
+                        isDark ? "border-zinc-900" : "border-white"
+                      }`}
                       title="Online"
                     />
                   )}

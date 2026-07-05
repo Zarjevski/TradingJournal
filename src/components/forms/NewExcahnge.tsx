@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Image from "next/image";
-import Button from "../common/Button";
+import Button from "@/components/ui/Button";
 import FormHeader from "./FormHeader";
-import Input from "../common/Input";
+import Input from "@/components/ui/Input";
 import { useColorMode } from "@/context/ColorModeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useModalContext } from "@/context/ModalContext";
@@ -84,7 +84,7 @@ const NewExcahnge = () => {
       });
 
       if (response.status === 201) {
-        showNotification("Exchange added successfully", "Success");
+        showNotification("Account added successfully", "Success");
         await refetch();
         setIsOpen(false);
         setActive(null);
@@ -92,9 +92,9 @@ const NewExcahnge = () => {
         setSearchQuery("");
       }
     } catch (error: any) {
-      console.error("Error creating exchange:", error);
+      console.error("Error creating account:", error);
       showNotification(
-        error.response?.data?.error || "Failed to add exchange",
+        error.response?.data?.error || "Failed to add account",
         "Error"
       );
     } finally {
@@ -111,10 +111,10 @@ const NewExcahnge = () => {
       className={`w-full max-w-4xl max-h-[85vh] rounded-lg shadow-xl overflow-hidden flex flex-col ${
         colorMode === "light"
           ? "bg-white text-gray-900"
-          : "bg-gray-800 text-white"
+          : "bg-zinc-900 text-white"
       }`}
     >
-      <FormHeader title="Add New Exchange" />
+      <FormHeader title="Add New Account" />
       
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Search Bar */}
@@ -131,8 +131,8 @@ const NewExcahnge = () => {
             placeholder="Search exchanges..."
             className={`w-full pl-12 pr-4 py-3 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
               colorMode === "light"
-                ? "bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900"
-                : "bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring-blue-500 text-white"
+                ? "bg-white border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500 text-gray-900"
+                : "bg-zinc-700 border-zinc-600 focus:border-zinc-400 focus:ring-zinc-400 text-white"
             } placeholder:${colorMode === "light" ? "text-gray-400" : "text-gray-500"}`}
           />
         </div>
@@ -144,8 +144,8 @@ const NewExcahnge = () => {
             animate={{ opacity: 1, y: 0 }}
             className={`p-4 rounded-lg border-2 ${
               colorMode === "light"
-                ? "bg-blue-50 border-blue-200"
-                : "bg-blue-900/20 border-blue-700"
+                ? "bg-zinc-50 border-zinc-200"
+                : "bg-zinc-800/40 border-zinc-600"
             }`}
           >
             <div className="flex items-center gap-3 mb-3">
@@ -200,8 +200,8 @@ const NewExcahnge = () => {
             <div
               className={`text-center py-12 rounded-lg border ${
                 colorMode === "light"
-                  ? "bg-gray-50 border-gray-200"
-                  : "bg-gray-700/50 border-gray-600"
+                  ? "bg-zinc-50 border-zinc-200"
+                  : "bg-zinc-700/50 border-zinc-600"
               }`}
             >
               <p className={`text-lg ${
@@ -232,11 +232,11 @@ const NewExcahnge = () => {
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                         isSelected
                           ? colorMode === "light"
-                            ? "bg-blue-50 border-blue-500 ring-2 ring-blue-200"
-                            : "bg-blue-900/30 border-blue-500 ring-2 ring-blue-700"
+                            ? "bg-zinc-100 border-zinc-500 ring-2 ring-zinc-300"
+                            : "bg-zinc-700/50 border-zinc-400 ring-2 ring-zinc-600"
                           : colorMode === "light"
-                          ? "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                          : "bg-gray-700/50 border-gray-600 hover:border-gray-500 hover:bg-gray-700"
+                          ? "bg-white border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                          : "bg-zinc-700/50 border-zinc-600 hover:border-zinc-500 hover:bg-zinc-700"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -269,8 +269,8 @@ const NewExcahnge = () => {
                               <div
                                 className={`h-1.5 rounded-full flex-1 ${
                                   colorMode === "light"
-                                    ? "bg-gray-200"
-                                    : "bg-gray-600"
+                                    ? "bg-zinc-200"
+                                    : "bg-zinc-600"
                                 }`}
                               >
                                 <div
@@ -309,11 +309,10 @@ const NewExcahnge = () => {
       {/* Footer */}
       <div
         className={`p-4 border-t flex justify-end gap-3 ${
-          colorMode === "light" ? "border-gray-200" : "border-gray-700"
+          colorMode === "light" ? "border-zinc-200" : "border-zinc-700"
         }`}
       >
         <Button
-          text="Cancel"
           onClick={() => {
             setIsOpen(false);
             setActive(null);
@@ -322,13 +321,16 @@ const NewExcahnge = () => {
           }}
           variant="secondary"
           type="button"
-        />
+        >
+          Cancel
+        </Button>
         <Button
-          text={isSubmitting ? "Adding..." : "Add Exchange"}
           type="submit"
           disabled={!active || isSubmitting}
-          icon={isSubmitting ? FaSpinner : undefined}
-        />
+          leftIcon={isSubmitting ? <FaSpinner /> : undefined}
+        >
+          {isSubmitting ? "Adding..." : "Add Account"}
+        </Button>
       </div>
     </motion.form>
   );

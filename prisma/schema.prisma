@@ -19,7 +19,7 @@ datasource db {
 model User {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   email     String     @unique
-  password  String
+  password  String?
   firstName String
   lastName  String
   photoURL  String?
@@ -50,6 +50,9 @@ model User {
   conversationsAsB       Conversation[]  @relation("ConversationUserB")
   messagesSent            Message[]
   presence                Presence?
+  // Learning platform
+  subscription            Subscription?
+  lessonProgress          LessonProgress[]
 
   @@map("users")
 }
@@ -123,28 +126,39 @@ model Trade {
   imageURL     String?
   comments     Comment[]
   teamShares   TeamTradeShare[]
+  // Set when this trade was auto-imported from a broker API sync (e.g. Binance trade id),
+  // used to skip re-importing the same trade on a later sync. Null for manually-entered trades.
+  externalId   String?
 
   @@map("trades")
 }
 
 model Exchange {
-  id           String  @id @default(auto()) @map("_id") @db.ObjectId
-  trader       User    @relation(fields: [traderID], references: [id])
-  traderID     String  @db.ObjectId
-  trades       Trade[]
-  balance      Int
-  exchangeName String
-  image        String
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  trader             User      @relation(fields: [traderID], references: [id])
+  traderID           String    @db.ObjectId
+  trades             Trade[]
+  balance            Int
+  exchangeName       String
+  image              String
+  // Encrypted (AES-256-GCM via src/lib/encryption.ts) read-only broker API credentials,
+  // set when the user connects via API instead of (or in addition to) manual entry.
+  apiKeyEncrypted    String?
+  apiSecretEncrypted String?
+  connectedAt        DateTime?
+  lastSyncedAt       DateTime?
 
   @@map("exchange")
 }
 
 model Comment {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  trade   Trade  @relation(fields: [tradeID], references: [id])
-  tradeID String @db.ObjectId
-  owner   User   @relation(fields: [ownerID], references: [id])
-  ownerID String @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  trade     Trade    @relation(fields: [tradeID], references: [id])
+  tradeID   String   @db.ObjectId
+  owner     User     @relation(fields: [ownerID], references: [id])
+  ownerID   String   @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
 }
 
 // Team models
@@ -342,4 +356,61 @@ model Presence {
   user User @relation(fields: [userID], references: [id], onDelete: Cascade)
 
   @@map("presence")
+}
+
+// Learning platform (subscription-gated lessons)
+
+model Subscription {
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
+  userID               String    @unique @db.ObjectId
+  stripeCustomerId     String    @unique
+  stripeSubscriptionId String?   @unique
+  status               String    // "ACTIVE" | "CANCELED" | "PAST_DUE" | "INCOMPLETE"
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Course {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  lessons Lesson[]
+
+  @@map("courses")
+}
+
+model Lesson {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  courseID  String   @db.ObjectId
+  title     String
+  body      String // markdown content
+  videoUrl  String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  course   Course           @relation(fields: [courseID], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+
+  @@map("lessons")
+}
+
+model LessonProgress {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userID      String   @db.ObjectId
+  lessonID    String   @db.ObjectId
+  completedAt DateTime @default(now())
+
+  user   User   @relation(fields: [userID], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonID], references: [id], onDelete: Cascade)
+
+  @@unique([userID, lessonID])
+  @@map("lesson_progress")
 }

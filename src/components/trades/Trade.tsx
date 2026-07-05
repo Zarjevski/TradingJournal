@@ -1,5 +1,5 @@
 import React from "react";
-import Badge from "@/components/common/Badge";
+import Badge from "@/components/ui/Badge";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -31,7 +31,7 @@ const Trade: React.FC<TradeProps> = ({
       ? "bg-green-500"
       : position === "short"
       ? "bg-red-500"
-      : "bg-gray-500";
+      : "bg-zinc-500";
   const statusColor =
     status === "win"
       ? "bg-green-500"
@@ -47,8 +47,8 @@ const Trade: React.FC<TradeProps> = ({
       whileHover={{ scale: 1.01 }}
       className={`h-14 text-center cursor-pointer transition-all duration-200 border-b ${
         colorMode === "light"
-          ? "hover:bg-blue-50 border-gray-100"
-          : "hover:bg-gray-700/50 border-gray-700"
+          ? "hover:bg-zinc-50 border-gray-100"
+          : "hover:bg-zinc-700/50 border-gray-700"
       }`}
       onClick={() => router.push(`/trades/${id}`)}
     >
@@ -60,7 +60,7 @@ const Trade: React.FC<TradeProps> = ({
       </td>
       <td className="px-4">
         <div className="flex items-center justify-center capitalize">
-          <Badge text={position} color={positionColor} />
+          <Badge className={`${positionColor} text-white`}>{position.toUpperCase()}</Badge>
         </div>
       </td>
       <td className="px-4">
@@ -68,7 +68,7 @@ const Trade: React.FC<TradeProps> = ({
       </td>
       <td className="px-4">
         <div className="flex items-center justify-center capitalize">
-          <Badge text={status} color={statusColor} />
+          <Badge className={`${statusColor} text-white`}>{status.toUpperCase()}</Badge>
         </div>
       </td>
       <td className="px-4">

@@ -26,8 +26,8 @@ const ForgotPasswordPage = () => {
         onClick={() => router.push("/auth/login")}
         className={`mt-4 text-sm transition-colors ${
           displayColorMode === "light"
-            ? "text-blue-600 hover:text-blue-700"
-            : "text-blue-400 hover:text-blue-300"
+            ? "text-zinc-600 hover:text-zinc-700"
+            : "text-zinc-400 hover:text-zinc-300"
         }`}
       >
         Back to Login

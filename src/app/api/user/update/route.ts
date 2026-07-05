@@ -2,6 +2,7 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { isValidEmail, isStrongPassword, PASSWORD_REQUIREMENTS_MESSAGE } from "@/lib/validation";
 
 export async function PATCH(request: Request) {
   try {
@@ -38,7 +39,7 @@ export async function PATCH(request: Request) {
     }
 
     if (body.email) {
-      if (typeof body.email !== "string" || !body.email.includes("@")) {
+      if (!isValidEmail(body.email)) {
         return NextResponse.json(
           { error: "Invalid email format" },
           { status: 400 }
@@ -61,9 +62,9 @@ export async function PATCH(request: Request) {
     }
 
     if (body.password) {
-      if (typeof body.password !== "string" || body.password.length < 8) {
+      if (!isStrongPassword(body.password)) {
         return NextResponse.json(
-          { error: "Password must be at least 8 characters" },
+          { error: PASSWORD_REQUIREMENTS_MESSAGE },
           { status: 400 }
         );
       }

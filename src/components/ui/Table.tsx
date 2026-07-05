@@ -69,11 +69,11 @@ const Table: React.FC<TableProps> = ({ children, headers, className = "" }) => {
   return (
     <div className="overflow-x-auto">
       <table className={`min-w-full divide-y ${
-        colorMode === "light" ? "divide-gray-200" : "divide-gray-700"
+        colorMode === "light" ? "divide-gray-200" : "divide-zinc-700"
       } ${className}`}>
         {headers ? (
           <>
-            <thead className={colorMode === "light" ? "bg-gray-50" : "bg-gray-800"}>
+            <thead className={colorMode === "light" ? "bg-zinc-50" : "bg-zinc-800"}>
               <tr>
                 {headers.map((header, index) => (
                   <th
@@ -88,7 +88,7 @@ const Table: React.FC<TableProps> = ({ children, headers, className = "" }) => {
               </tr>
             </thead>
             <tbody className={`${
-              colorMode === "light" ? "bg-white divide-gray-200" : "bg-gray-800 divide-gray-700"
+              colorMode === "light" ? "bg-white divide-gray-200" : "bg-zinc-900 divide-zinc-700"
             } divide-y`}>
               {children}
             </tbody>

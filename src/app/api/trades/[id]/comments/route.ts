@@ -7,14 +7,16 @@ function isValidObjectId(id: string): boolean {
   return /^[0-9a-fA-F]{24}$/.test(id);
 }
 
-// POST - Create a comment on a trade (stub implementation)
+const MAX_COMMENT_LENGTH = 2000;
+
+// POST - Create a comment on a trade
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: tradeId } = await params;
-    
+
     if (!tradeId || !isValidObjectId(tradeId)) {
       return NextResponse.json(
         { error: "Invalid trade ID" },
@@ -23,7 +25,7 @@ export async function POST(
     }
 
     const currentUser = await getCurrentUser();
-    
+
     if (!currentUser) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -31,7 +33,8 @@ export async function POST(
       );
     }
 
-    // Verify trade exists and belongs to user
+    // Verify trade exists and belongs to user (matches the access control already
+    // enforced on the trade detail page — only the trade owner can view or comment)
     const trade = await prisma.trade.findUnique({
       where: { id: tradeId },
     });
@@ -60,11 +63,39 @@ export async function POST(
       );
     }
 
-    // TODO: Implement comment creation when Comment model is fully defined
-    // For now, return a stub response
+    const trimmedContent = content.trim();
+
+    if (trimmedContent.length > MAX_COMMENT_LENGTH) {
+      return NextResponse.json(
+        { error: `Comment must be ${MAX_COMMENT_LENGTH} characters or fewer` },
+        { status: 400 }
+      );
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        tradeID: tradeId,
+        ownerID: currentUser.id,
+        content: trimmedContent,
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            photoURL: true,
+          },
+        },
+      },
+    });
+
     return NextResponse.json(
-      { message: "Comment creation not yet implemented", tradeId, content: content.trim() },
-      { status: 501 }
+      {
+        ...comment,
+        createdAt: comment.createdAt.toISOString(),
+      },
+      { status: 201 }
     );
   } catch (error) {
     console.error("Error creating comment:", error);

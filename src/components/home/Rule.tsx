@@ -43,15 +43,15 @@ const Rule = ({
       whileHover={{ scale: 1.02 }}
       className={`h-auto min-h-[3rem] w-full flex justify-between items-center p-3 rounded-lg transition-all duration-200 ${
         colorMode === "light"
-          ? "hover:bg-gray-50 border border-gray-200"
-          : "hover:bg-gray-700/50 border border-gray-700"
+          ? "hover:bg-zinc-50 border border-gray-200"
+          : "hover:bg-zinc-700/50 border border-gray-700"
       } ${isDeleting ? "opacity-50" : ""}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <h6 className="capitalize flex-1 text-sm">
         <span className={`mr-2 font-extrabold ${
-          colorMode === "light" ? "text-blue-600" : "text-blue-400"
+          colorMode === "light" ? "text-zinc-600" : "text-zinc-400"
         }`}>
           #{number + 1}.
         </span>
@@ -72,8 +72,8 @@ const Rule = ({
               whileTap={{ scale: 0.9 }}
               className={`p-2 rounded-lg transition-colors ${
                 colorMode === "light"
-                  ? "hover:bg-blue-100 text-blue-600"
-                  : "hover:bg-blue-900/30 text-blue-400"
+                  ? "hover:bg-zinc-100 text-zinc-600"
+                  : "hover:bg-zinc-700/40 text-zinc-400"
               }`}
               title="Edit rule"
             >

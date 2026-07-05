@@ -37,10 +37,12 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
         rules: Rule[];
         trades: Trade[];
         exchanges: Exchange[];
+        hasPassword?: boolean;
+        createdAt?: string;
       }>("/api/user");
-      
-      const { firstName, lastName, id, photoURL, status, rules, trades, exchanges } = response.data;
-      setUser({ firstName, lastName, id, photoURL, status, rules, trades, exchanges });
+
+      const { firstName, lastName, id, photoURL, status, rules, trades, exchanges, hasPassword, createdAt } = response.data;
+      setUser({ firstName, lastName, id, photoURL, status, rules, trades, exchanges, hasPassword, createdAt });
     } catch (error: any) {
       // Only log non-401 errors (401 is expected when not authenticated)
       if (error.response?.status !== 401) {

@@ -54,6 +54,8 @@ export interface UserContextData {
     trades: Trade[];
     rules: Rule[];
     exchanges: Exchange[];
+    hasPassword?: boolean;
+    createdAt?: string;
   } | null;
   isLoading: boolean;
   refetch: () => Promise<void>;

@@ -1,19 +1,21 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useColorMode } from "@/context/ColorModeContext";
 import SearchableSelect from "../common/SearchableSelect";
 import RadioGroup from "../common/RadioGroup";
-import Input from "../common/Input";
-import Button from "../common/Button";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { MdDelete, MdImage } from "react-icons/md";
 import { FaSpinner, FaArrowUp, FaArrowDown, FaCheckCircle, FaTimesCircle, FaClock } from "react-icons/fa";
-import TextArea from "../common/TextArea";
+import Textarea from "@/components/ui/Textarea";
 import Image from "next/image";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import showNotification from "@/hooks/useShowNotification";
 import cryptocurrenciesData from "@/data/cryptocurrencies.json";
 
-const cryptocurrencies = cryptocurrenciesData as Array<{ symbol: string; name: string }>;
+const staticFallbackSymbols = (cryptocurrenciesData as Array<{ symbol: string; name: string }>).map(
+  (c) => ({ value: c.symbol, label: c.name })
+);
 
 const TradeDetails = ({
   setFormData,
@@ -26,7 +28,25 @@ const TradeDetails = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [symbolOptions, setSymbolOptions] = useState(staticFallbackSymbols);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    axios
+      .get<{ symbols: Array<{ value: string; label: string }> }>("/api/market/symbols")
+      .then((response) => {
+        if (!cancelled && response.data.symbols?.length > 0) {
+          setSymbolOptions(response.data.symbols);
+        }
+      })
+      .catch(() => {
+        // Keep the bundled fallback list — the form stays usable offline.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,12 +110,6 @@ const TradeDetails = ({
     }
   };
 
-  // Convert cryptocurrencies to options format
-  const symbolOptions = cryptocurrencies.map((crypto) => ({
-    value: crypto.symbol,
-    label: crypto.name,
-  }));
-
   const positionOptions = [
     { value: "long", label: "Long", icon: <FaArrowUp /> },
     { value: "short", label: "Short", icon: <FaArrowDown /> },
@@ -129,18 +143,18 @@ const TradeDetails = ({
       {/* Size and Margin */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
-          label={"size"}
+          label={"Size"}
           name={"size"}
           type={"number"}
-          placeholder={"amount in dollars"}
+          placeholder={"Amount in dollars"}
           value={formData.size || ""}
           onChange={(e) => setFormData({ ...formData, size: e.target.value })}
         />
         <Input
-          label={"contract/margin"}
+          label={"Contract / Margin"}
           name={"margin"}
           type={"number"}
-          placeholder={"example 20x"}
+          placeholder={"e.g. 20x"}
           value={formData.margin || ""}
           onChange={(e) => setFormData({ ...formData, margin: e.target.value })}
         />
@@ -157,7 +171,7 @@ const TradeDetails = ({
         <Input
           type={"date"}
           name={"date"}
-          label={"entry date"}
+          label={"Entry Date"}
           value={formData.date || ""}
           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
         />
@@ -166,7 +180,7 @@ const TradeDetails = ({
       {/* Result: positive = profit, negative = loss; for Loss status you can enter a positive number and it will be recorded as a loss */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
-          label={"result (P/L)"}
+          label={"Result (P/L)"}
           name={"result"}
           type={"number"}
           placeholder={"e.g. 50 for profit, 20 for loss (or -20)"}
@@ -177,7 +191,7 @@ const TradeDetails = ({
 
       {/* Reason and Image */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <TextArea
+        <Textarea
           placeholder="Trade Summary / Reason"
           cols={30}
           rows={8}
@@ -196,11 +210,11 @@ const TradeDetails = ({
             className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
               isUploading
                 ? colorMode === "light"
-                  ? "border-blue-400 bg-blue-50"
-                  : "border-blue-500 bg-blue-900/20"
+                  ? "border-zinc-400 bg-zinc-50"
+                  : "border-zinc-500 bg-zinc-800/40"
                 : colorMode === "light"
-                ? "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
-                : "border-gray-600 bg-gray-700/50 hover:border-gray-500 hover:bg-gray-700"
+                ? "border-zinc-300 bg-zinc-50 hover:border-zinc-400 hover:bg-zinc-100"
+                : "border-zinc-600 bg-zinc-700/50 hover:border-zinc-500 hover:bg-zinc-700"
             }`}
           >
             <input
@@ -249,7 +263,7 @@ const TradeDetails = ({
                   }`}
                 >
                   {isUploading ? (
-                    <FaSpinner className="animate-spin text-4xl text-blue-500 mb-2" />
+                    <FaSpinner className="animate-spin text-4xl text-zinc-500 mb-2" />
                   ) : (
                     <MdImage className="text-4xl mb-2" />
                   )}

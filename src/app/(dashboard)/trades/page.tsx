@@ -7,13 +7,19 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 
 export const dynamic = "force-dynamic";
 
-export default async function TradesPage() {
+interface TradesPageProps {
+  searchParams: Promise<{ exchangeId?: string }>;
+}
+
+export default async function TradesPage({ searchParams }: TradesPageProps) {
   // Use getCurrentUser for consistency with other pages
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     redirect("/auth/login");
   }
+
+  const { exchangeId: initialExchangeId } = await searchParams;
 
   try {
     // Fetch data in parallel for better performance
@@ -60,6 +66,7 @@ export default async function TradesPage() {
         initialTrades={serializedTrades}
         initialTotal={totalTrades}
         exchanges={exchanges}
+        initialExchangeId={initialExchangeId}
       />
     );
   } catch (error) {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useColorMode } from "@/context/ColorModeContext";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 
 interface PrivacyState {
   shareWinRate: boolean;
@@ -62,7 +62,7 @@ export default function PrivacyClient() {
     }
   };
 
-  const bg = colorMode === "light" ? "bg-white" : "bg-gray-800";
+  const bg = colorMode === "light" ? "bg-white" : "bg-zinc-800";
   const border = colorMode === "light" ? "border-gray-200" : "border-gray-700";
   const text = colorMode === "light" ? "text-gray-900" : "text-gray-100";
   const textMuted = colorMode === "light" ? "text-gray-500" : "text-gray-400";
@@ -118,10 +118,11 @@ export default function PrivacyClient() {
 
         <div className="pt-4">
           <Button
-            text={saving ? "Saving..." : "Save"}
             onClick={handleSave}
             disabled={saving}
-          />
+          >
+            {saving ? "Saving..." : "Save"}
+          </Button>
         </div>
       </div>
     </div>
@@ -159,8 +160,8 @@ function ToggleRow({
           relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full touch-manipulation
           transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
           min-w-[48px] min-h-[44px] items-center
-          ${checked ? (colorMode === "light" ? "bg-blue-600" : "bg-purple-600") : "bg-gray-300 dark:bg-gray-600"}
-          ${colorMode === "light" ? "focus:ring-blue-500" : "focus:ring-purple-500"}
+          ${checked ? (colorMode === "light" ? "bg-zinc-900" : "bg-zinc-100") : "bg-zinc-300 dark:bg-zinc-600"}
+          ${colorMode === "light" ? "focus:ring-zinc-500" : "focus:ring-zinc-400"}
         `}
       >
         <span

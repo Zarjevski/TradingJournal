@@ -61,13 +61,13 @@ const Modal: React.FC<ModalProps> = ({
     >
       <div
         className={`${
-          colorMode === "light" ? "bg-white" : "bg-gray-800"
+          colorMode === "light" ? "bg-white" : "bg-zinc-900"
         } rounded-lg shadow-xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
           <div className={`flex items-center justify-between px-6 py-4 border-b ${
-            colorMode === "light" ? "border-gray-200" : "border-gray-700"
+            colorMode === "light" ? "border-gray-200" : "border-zinc-700"
           }`}>
             <h2 className={`text-xl font-semibold ${
               colorMode === "light" ? "text-gray-900" : "text-white"

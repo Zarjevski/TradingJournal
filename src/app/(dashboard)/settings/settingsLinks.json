@@ -1,6 +1,6 @@
 [
   {"title": "user information", "link": "/information"},
+  {"title": "security", "link": "/security"},
   {"title": "privacy", "link": "/privacy"},
-  {"title": "exchanges", "link": "/exchanges"},
   {"title": "delete account", "link": "/delete"}
 ]

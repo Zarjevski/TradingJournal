@@ -5,7 +5,7 @@ import { useColorMode } from "@/context/ColorModeContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaExclamationTriangle, FaTrash } from "react-icons/fa";
-import Button from "@/components/common/Button";
+import Button from "@/components/ui/Button";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import axios from "axios";
 import showNotification from "@/hooks/useShowNotification";
@@ -74,7 +74,7 @@ const Page = () => {
         </div>
 
         <div className={`mb-6 p-4 rounded-lg ${
-          colorMode === "light" ? "bg-white" : "bg-gray-800/50"
+          colorMode === "light" ? "bg-white" : "bg-zinc-800/50"
         }`}>
           <h2 className="font-semibold mb-3">What will be deleted:</h2>
           <ul className={`space-y-2 text-sm list-disc list-inside ${
@@ -101,17 +101,18 @@ const Page = () => {
         </div>
 
         <Button
-          text="Delete My Account"
           onClick={() => setShowModal(true)}
-          icon={FaTrash}
+          leftIcon={<FaTrash />}
           className="bg-red-500 hover:bg-red-600 text-white"
-        />
+        >
+          Delete My Account
+        </Button>
       </div>
 
       {/* Confirmation Modal */}
       <ConfirmModal isOpen={showModal} onClose={() => setShowModal(false)}>
         <div className={`p-4 sm:p-6 w-full max-w-[calc(100vw-2rem)] ${
-          colorMode === "light" ? "bg-white" : "bg-gray-800"
+          colorMode === "light" ? "bg-white" : "bg-zinc-800"
         }`}>
           <div className="flex items-center gap-3 mb-4">
             <FaExclamationTriangle className="text-2xl text-red-500" />
@@ -136,24 +137,26 @@ const Page = () => {
             className={`w-full px-4 py-3 rounded-lg border mb-4 min-h-[44px] text-base touch-manipulation ${
               colorMode === "light"
                 ? "bg-white border-gray-300"
-                : "bg-gray-700 border-gray-600 text-white"
+                : "bg-zinc-700 border-gray-600 text-white"
             }`}
           />
           <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 justify-end">
             <Button
-              text="Cancel"
               onClick={() => {
                 setShowModal(false);
                 setConfirmText("");
               }}
-              className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto min-h-[44px] touch-manipulation"
-            />
+              className="bg-zinc-500 hover:bg-zinc-600 w-full sm:w-auto min-h-[44px] touch-manipulation"
+            >
+              Cancel
+            </Button>
             <Button
-              text={isDeleting ? "Deleting..." : "Delete Account"}
               onClick={handleDelete}
               disabled={isDeleting || confirmText.toLowerCase() !== "delete"}
               className="bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 w-full sm:w-auto min-h-[44px] touch-manipulation"
-            />
+            >
+              {isDeleting ? "Deleting..." : "Delete Account"}
+            </Button>
           </div>
         </div>
       </ConfirmModal>

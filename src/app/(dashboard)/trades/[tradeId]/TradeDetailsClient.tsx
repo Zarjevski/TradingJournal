@@ -3,13 +3,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useColorMode } from "@/context/ColorModeContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
-import { motion } from "framer-motion";
-import { FaSpinner, FaCheckCircle, FaTimesCircle, FaClock, FaUndo, FaTrash } from "react-icons/fa";
-import Input from "@/components/common/Input";
-import TextArea from "@/components/common/TextArea";
-import Button from "@/components/common/Button";
-import Badge from "@/components/common/Badge";
+import { FaSpinner, FaUndo, FaTrash, FaArrowLeft } from "react-icons/fa";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
+import PageHeader from "@/components/ui/PageHeader";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import Image from "next/image";
 import showNotification from "@/hooks/useShowNotification";
@@ -17,7 +19,8 @@ import { useUserContext } from "@/context/UserContext";
 import TVChart from "@/components/charts/TVChart";
 import { computeRange, toUnixSec, normalizeSymbolForBinance } from "@/lib/market";
 import type { TVCandle, TVVolumeBar, TVMarker } from "@/components/charts/TVChart";
-import styles from "./TradeDetails.module.css";
+import { getStatusBadgeClass, formatStatusLabel } from "@/lib/tradeStatus";
+import { formatSimpleDate } from "@/lib/dateFormat";
 
 interface Exchange {
   id: string;
@@ -44,6 +47,8 @@ interface CommentOwner {
 interface Comment {
   id: string;
   owner: CommentOwner;
+  content: string;
+  createdAt: string;
 }
 
 interface Trade {
@@ -75,6 +80,9 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
   const [trade, setTrade] = useState<Trade>(initialTrade);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     symbol: initialTrade.symbol,
     position: initialTrade.position.toUpperCase(),
@@ -149,20 +157,9 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
     ];
   })();
 
-  const getStatusColor = (status: string) => {
-    const s = status.toUpperCase();
-    if (s === "WIN") return "bg-green-500";
-    if (s === "LOSS") return "bg-red-500";
-    if (s === "PENDING") return "bg-yellow-500";
-    if (s === "BREAK_EVEN") return colorMode === "light" ? "bg-blue-500" : "bg-purple-500";
-    if (s === "CANCELED") return "bg-gray-500";
-    return "bg-gray-500";
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -207,7 +204,6 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
       newErrors.reason = "Reason must be at least 2 characters";
     }
 
-    // Cross-field validation
     if (["WIN", "LOSS"].includes(formData.status) && resultNum === 0) {
       newErrors.result = "Result cannot be 0 when status is WIN or LOSS";
     }
@@ -216,7 +212,6 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
       newErrors.result = "Result must be 0 when status is BREAK_EVEN";
     }
 
-    // Validate imageURL if provided
     if (formData.imageURL && formData.imageURL.trim()) {
       try {
         if (!formData.imageURL.startsWith("/") && !formData.imageURL.startsWith("http")) {
@@ -241,7 +236,7 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
     try {
       let resultNum = parseInt(formData.result, 10);
       if (formData.status === "LOSS" && !isNaN(resultNum) && resultNum > 0) {
-        resultNum = -resultNum; // losses deduct from balance
+        resultNum = -resultNum;
       }
 
       const updateData: any = {
@@ -295,6 +290,32 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
     }
   };
 
+  const handleAddComment = async () => {
+    const content = newComment.trim();
+    if (!content) {
+      setCommentError("Comment cannot be empty");
+      return;
+    }
+
+    setIsSubmittingComment(true);
+    setCommentError(null);
+    try {
+      const response = await axios.post(`/api/trades/${trade.id}/comments`, {
+        content,
+      });
+
+      setTrade((prev) => ({
+        ...prev,
+        comments: [response.data, ...prev.comments],
+      }));
+      setNewComment("");
+    } catch (error: any) {
+      setCommentError(error.response?.data?.error || "Failed to add comment");
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
   const handleQuickAction = async (action: "WIN" | "LOSS" | "PENDING" | "BREAK_EVEN") => {
     setIsSaving(true);
     try {
@@ -305,7 +326,6 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
       if (action === "BREAK_EVEN") {
         updateData.result = 0;
       } else if (action === "LOSS" && trade.result > 0) {
-        // So that balance is deducted, store loss as negative
         updateData.result = -trade.result;
       }
 
@@ -373,524 +393,451 @@ const TradeDetailsClient: React.FC<TradeDetailsClientProps> = ({ trade: initialT
     }
   };
 
+  const borderColor = colorMode === "light" ? "border-zinc-200" : "border-zinc-800";
+  const mutedText = colorMode === "light" ? "text-gray-500" : "text-gray-400";
+  const selectClass = (hasError?: string) =>
+    `w-full px-4 py-2.5 rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+      hasError
+        ? "border-red-500 focus:ring-red-500"
+        : colorMode === "light"
+        ? "bg-white border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500 text-gray-900"
+        : "bg-zinc-800 border-zinc-700 focus:border-zinc-400 focus:ring-zinc-400 text-white"
+    }`;
+  const labelClass = `block mb-2 text-sm font-semibold ${colorMode === "light" ? "text-gray-700" : "text-gray-300"}`;
+  const avatarFallback = colorMode === "light" ? "bg-zinc-200 text-gray-700" : "bg-zinc-700 text-gray-200";
+
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <h1 className={styles.title}>{trade.symbol}</h1>
-          <Badge
-            text={trade.status}
-            color={getStatusColor(trade.status)}
-            variant="solid"
-          />
-        </div>
-      </div>
+    <div className="min-h-screen w-full app-bg">
+      <div className="w-full h-full p-4 sm:p-6 lg:p-8 space-y-4 md:space-y-6 max-w-[1600px] mx-auto">
+        <Link
+          href="/trades"
+          className={`inline-flex items-center gap-2 text-sm ${mutedText} hover:underline`}
+        >
+          <FaArrowLeft /> Back to all trades
+        </Link>
 
-      {/* Chart Section */}
-      <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`} style={{ marginBottom: "1.5rem" }}>
-        <h2 className={styles.cardTitle}>Chart</h2>
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className={`text-sm font-medium ${colorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>Timeframe:</span>
-          {(["15m", "1h", "4h", "1d"] as const).map((tf) => (
-            <button
-              key={tf}
-              type="button"
-              onClick={() => setChartTf(tf)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                chartTf === tf
-                  ? colorMode === "light"
-                    ? "bg-blue-600 text-white"
-                    : "bg-purple-600 text-white"
-                  : colorMode === "light"
-                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-            >
-              {tf}
-            </button>
-          ))}
-          <span className={`text-sm font-medium ml-2 ${colorMode === "light" ? "text-gray-600" : "text-gray-400"}`}>Range:</span>
-          {(["1D", "1W", "1M"] as const).map((range) => (
-            <button
-              key={range}
-              type="button"
-              onClick={() => setChartRange(range)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                chartRange === range
-                  ? colorMode === "light"
-                    ? "bg-blue-600 text-white"
-                    : "bg-purple-600 text-white"
-                  : colorMode === "light"
-                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-            >
-              {range}
-            </button>
-          ))}
-        </div>
-        {chartError && (
-          <p className="text-sm text-red-500 mb-2">{chartError}</p>
-        )}
-        <TVChart
-          candles={chartCandles}
-          volume={chartVolume}
-          markers={chartMarkers}
-          height={420}
-          loading={chartLoading}
+        <PageHeader
+          title={trade.symbol}
+          subtitle={`${trade.exchange?.exchangeName ?? trade.exchangeName} · ${formatSimpleDate(trade.date)}`}
+          actions={
+            <>
+              <Badge className={getStatusBadgeClass(trade.status)}>
+                {formatStatusLabel(trade.status)}
+              </Badge>
+              <Button
+                onClick={() => setShowDeleteModal(true)}
+                variant="secondary"
+                leftIcon={<FaTrash />}
+                className="text-red-500 hover:text-red-600"
+              >
+                Delete Trade
+              </Button>
+            </>
+          }
         />
-      </div>
 
-      <div className={styles.content}>
-        {/* Left Column: Overview + Quick Actions */}
-        <div className={styles.leftColumn}>
-          {/* Exchange Section */}
-          {trade.exchange && (
-            <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`}>
-              <h2 className={styles.cardTitle}>Exchange</h2>
-              <div className={styles.exchangeSection}>
-                <div className={styles.exchangeImage}>
+        {/* Chart */}
+        <Card className={`app-surface ${borderColor} border`}>
+          <h2 className="text-lg font-semibold mb-4">Chart</h2>
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className={`text-sm font-medium ${mutedText}`}>Timeframe:</span>
+            {(["15m", "1h", "4h", "1d"] as const).map((tf) => (
+              <button
+                key={tf}
+                type="button"
+                onClick={() => setChartTf(tf)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  chartTf === tf
+                    ? colorMode === "light"
+                      ? "bg-zinc-900 text-white"
+                      : "bg-zinc-100 text-zinc-900"
+                    : colorMode === "light"
+                    ? "bg-zinc-100 text-gray-700 hover:bg-zinc-200"
+                    : "bg-zinc-800 text-gray-300 hover:bg-zinc-700"
+                }`}
+              >
+                {tf}
+              </button>
+            ))}
+            <span className={`text-sm font-medium ml-2 ${mutedText}`}>Range:</span>
+            {(["1D", "1W", "1M"] as const).map((range) => (
+              <button
+                key={range}
+                type="button"
+                onClick={() => setChartRange(range)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  chartRange === range
+                    ? colorMode === "light"
+                      ? "bg-zinc-900 text-white"
+                      : "bg-zinc-100 text-zinc-900"
+                    : colorMode === "light"
+                    ? "bg-zinc-100 text-gray-700 hover:bg-zinc-200"
+                    : "bg-zinc-800 text-gray-300 hover:bg-zinc-700"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
+          {chartError && <p className="text-sm text-red-500 mb-2">{chartError}</p>}
+          <TVChart
+            candles={chartCandles}
+            volume={chartVolume}
+            markers={chartMarkers}
+            height={420}
+            loading={chartLoading}
+          />
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-4 md:gap-6">
+          {/* Left column */}
+          <div className="space-y-4 md:space-y-6">
+            {trade.exchange && (
+              <Card className={`app-surface ${borderColor} border`}>
+                <h2 className="text-lg font-semibold mb-4">Exchange</h2>
+                <div className="flex items-center gap-4">
                   <Image
                     src={trade.exchange.image}
                     alt={trade.exchange.exchangeName}
-                    width={64}
-                    height={64}
-                    className={styles.exchangeImage}
+                    width={56}
+                    height={56}
+                    className="rounded-lg shrink-0"
                   />
-                </div>
-                <div className={styles.exchangeInfo}>
-                  <div className={styles.overviewItem}>
-                    <span className={styles.overviewLabel}>Name</span>
-                    <span className={styles.overviewValue}>{trade.exchange.exchangeName}</span>
-                  </div>
-                  <div className={styles.overviewItem}>
-                    <span className={styles.overviewLabel}>Balance</span>
-                    <span className={styles.overviewValue}>
-                      ${trade.exchange.balance.toLocaleString()}
-                    </span>
+                  <div className="flex-1 min-w-0 grid grid-cols-2 gap-3">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Name</p>
+                      <p className="font-semibold truncate">{trade.exchange.exchangeName}</p>
+                    </div>
+                    <div>
+                      <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Balance</p>
+                      <p className="font-semibold">${trade.exchange.balance.toLocaleString()}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </Card>
+            )}
 
-          {/* Trader Section */}
-          {trade.trader && (
-            <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`}>
-              <h2 className={styles.cardTitle}>Trader</h2>
-              <div className={styles.traderSection}>
-                <div className={styles.traderAvatar}>
+            {trade.trader && (
+              <Card className={`app-surface ${borderColor} border`}>
+                <h2 className="text-lg font-semibold mb-4">Trader</h2>
+                <div className="flex items-center gap-4">
                   {trade.trader.photoURL ? (
                     <Image
                       src={trade.trader.photoURL}
                       alt={`${trade.trader.firstName} ${trade.trader.lastName}`}
-                      width={64}
-                      height={64}
-                      className={styles.traderImage}
+                      width={56}
+                      height={56}
+                      className="rounded-full object-cover shrink-0"
                     />
                   ) : (
-                    <div className={styles.traderInitials}>
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ${avatarFallback}`}>
                       {trade.trader.firstName[0]}{trade.trader.lastName[0]}
                     </div>
                   )}
-                </div>
-                <div className={styles.traderInfo}>
-                  <div className={styles.overviewItem}>
-                    <span className={styles.overviewLabel}>Name</span>
-                    <span className={styles.overviewValue}>
-                      {trade.trader.firstName} {trade.trader.lastName}
-                    </span>
-                  </div>
-                  <div className={styles.overviewItem}>
-                    <span className={styles.overviewLabel}>Email</span>
-                    <span className={styles.overviewValue}>{trade.trader.email}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Overview Card */}
-          <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`}>
-            <h2 className={styles.cardTitle}>Overview</h2>
-            <div className={styles.overviewGrid}>
-              <div className={styles.overviewItem}>
-                <span className={styles.overviewLabel}>Created</span>
-                <span className={styles.overviewValue}>
-                  {new Date(trade.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              <div className={styles.overviewItem}>
-                <span className={styles.overviewLabel}>Entry Date</span>
-                <span className={styles.overviewValue}>
-                  {new Date(trade.date).toLocaleDateString()}
-                </span>
-              </div>
-              <div className={styles.overviewItem}>
-                <span className={styles.overviewLabel}>Position</span>
-                <span className={styles.overviewValue}>{trade.position}</span>
-              </div>
-              <div className={styles.overviewItem}>
-                <span className={styles.overviewLabel}>Margin</span>
-                <span className={styles.overviewValue}>{trade.margin}</span>
-              </div>
-              <div className={styles.overviewItem}>
-                <span className={styles.overviewLabel}>Size</span>
-                <span className={styles.overviewValue}>${trade.size.toLocaleString()}</span>
-              </div>
-              <div className={styles.overviewItem}>
-                <span className={styles.overviewLabel}>Status</span>
-                <Badge
-                  text={trade.status}
-                  color={getStatusColor(trade.status)}
-                  variant="solid"
-                />
-              </div>
-              <div className={styles.overviewItem}>
-                <span className={styles.overviewLabel}>Result (P/L)</span>
-                <span
-                  className={`${styles.overviewValue} ${
-                    trade.result > 0
-                      ? styles.positive
-                      : trade.result < 0
-                      ? styles.negative
-                      : ""
-                  }`}
-                >
-                  ${trade.result.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`}>
-            <h2 className={styles.cardTitle}>Quick Actions</h2>
-            <div className={styles.quickActions}>
-              <Button
-                text="Set to WIN"
-                onClick={() => handleQuickAction("WIN")}
-                disabled={isSaving}
-                variant="primary"
-                className={styles.quickActionButton}
-              />
-              <Button
-                text="Set to LOSS"
-                onClick={() => handleQuickAction("LOSS")}
-                disabled={isSaving}
-                variant="danger"
-                className={styles.quickActionButton}
-              />
-              <Button
-                text="Set to PENDING"
-                onClick={() => handleQuickAction("PENDING")}
-                disabled={isSaving}
-                variant="secondary"
-                className={styles.quickActionButton}
-              />
-              <Button
-                text="Break Even"
-                onClick={() => handleQuickAction("BREAK_EVEN")}
-                disabled={isSaving}
-                variant="secondary"
-                className={styles.quickActionButton}
-              />
-              <Button
-                text="Delete trade"
-                onClick={() => setShowDeleteModal(true)}
-                variant="danger"
-                icon={FaTrash}
-                className={styles.quickActionButton}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Edit Form */}
-        <div className={styles.rightColumn}>
-          <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`}>
-            <h2 className={styles.cardTitle}>Edit Trade</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSave();
-              }}
-              className={styles.form}
-            >
-              <div className={styles.formGrid}>
-                <Input
-                  type="text"
-                  label="Symbol"
-                  name="symbol"
-                  value={formData.symbol}
-                  onChange={handleInputChange}
-                  required
-                  error={errors.symbol}
-                />
-
-                <div>
-                  <label
-                    className={`block mb-2 text-sm font-semibold capitalize transition-colors ${
-                      colorMode === "light" ? "text-gray-700" : "text-gray-300"
-                    }`}
-                  >
-                    Position
-                  </label>
-                  <select
-                    name="position"
-                    value={formData.position}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-                      errors.position
-                        ? "border-red-500 focus:ring-red-500"
-                        : colorMode === "light"
-                        ? "bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900"
-                        : "bg-gray-800 border-gray-600 focus:border-purple-500 focus:ring-purple-500 text-white"
-                    }`}
-                  >
-                    <option value="LONG">LONG</option>
-                    <option value="SHORT">SHORT</option>
-                  </select>
-                  {errors.position && (
-                    <p className="mt-1 text-sm text-red-500 font-medium">{errors.position}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    className={`block mb-2 text-sm font-semibold capitalize transition-colors ${
-                      colorMode === "light" ? "text-gray-700" : "text-gray-300"
-                    }`}
-                  >
-                    Margin
-                  </label>
-                  <select
-                    name="margin"
-                    value={formData.margin}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-                      errors.margin
-                        ? "border-red-500 focus:ring-red-500"
-                        : colorMode === "light"
-                        ? "bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900"
-                        : "bg-gray-800 border-gray-600 focus:border-purple-500 focus:ring-purple-500 text-white"
-                    }`}
-                  >
-                    <option value="ISOLATED">ISOLATED</option>
-                    <option value="CROSSED">CROSSED</option>
-                  </select>
-                  {errors.margin && (
-                    <p className="mt-1 text-sm text-red-500 font-medium">{errors.margin}</p>
-                  )}
-                </div>
-
-                <Input
-                  type="datetime-local"
-                  label="Date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  required
-                  error={errors.date}
-                />
-
-                <div>
-                  <label
-                    className={`block mb-2 text-sm font-semibold capitalize transition-colors ${
-                      colorMode === "light" ? "text-gray-700" : "text-gray-300"
-                    }`}
-                  >
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-                      errors.status
-                        ? "border-red-500 focus:ring-red-500"
-                        : colorMode === "light"
-                        ? "bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900"
-                        : "bg-gray-800 border-gray-600 focus:border-purple-500 focus:ring-purple-500 text-white"
-                    }`}
-                  >
-                    <option value="PENDING">PENDING</option>
-                    <option value="WIN">WIN</option>
-                    <option value="LOSS">LOSS</option>
-                    <option value="BREAK_EVEN">BREAK_EVEN</option>
-                    <option value="CANCELED">CANCELED</option>
-                  </select>
-                  {errors.status && (
-                    <p className="mt-1 text-sm text-red-500 font-medium">{errors.status}</p>
-                  )}
-                </div>
-
-                <Input
-                  type="number"
-                  label="Size"
-                  name="size"
-                  value={formData.size}
-                  onChange={handleInputChange}
-                  required
-                  error={errors.size}
-                />
-
-                <Input
-                  type="number"
-                  label="Result (P/L)"
-                  name="result"
-                  value={formData.result}
-                  onChange={handleInputChange}
-                  error={errors.result}
-                />
-              </div>
-
-              <div className={styles.formSection}>
-                <label
-                  className={`block mb-2 text-sm font-semibold capitalize transition-colors ${
-                    colorMode === "light" ? "text-gray-700" : "text-gray-300"
-                  }`}
-                >
-                  Reason
-                </label>
-                <TextArea
-                  name="reason"
-                  value={formData.reason}
-                  onChange={handleInputChange}
-                  cols={30}
-                  rows={6}
-                  placeholder="Trade summary / reason"
-                />
-                {errors.reason && (
-                  <p className="mt-1 text-sm text-red-500 font-medium">{errors.reason}</p>
-                )}
-              </div>
-
-              <div className={styles.formSection}>
-                <label
-                  className={`block mb-2 text-sm font-semibold capitalize transition-colors ${
-                    colorMode === "light" ? "text-gray-700" : "text-gray-300"
-                  }`}
-                >
-                  Image URL
-                </label>
-                <Input
-                  type="text"
-                  name="imageURL"
-                  value={formData.imageURL}
-                  onChange={handleInputChange}
-                  placeholder="/uploads/trades/..."
-                  error={errors.imageURL}
-                />
-                <div className="mt-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className={`inline-block px-4 py-2 rounded-lg cursor-pointer transition-colors ${
-                      colorMode === "light"
-                        ? "bg-gray-200 text-gray-900 hover:bg-gray-300"
-                        : "bg-gray-700 text-white hover:bg-gray-600"
-                    }`}
-                  >
-                    Upload Image
-                  </label>
-                </div>
-                {formData.imageURL && (
-                  <div className="mt-4 relative w-full h-64 rounded-lg overflow-hidden border-2 border-gray-300">
-                    <Image
-                      src={formData.imageURL}
-                      alt="Trade image"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.formActions}>
-                <Button
-                  text="Reset"
-                  onClick={handleReset}
-                  disabled={isSaving}
-                  variant="secondary"
-                  icon={FaUndo}
-                />
-                <Button
-                  text={isSaving ? "Saving..." : "Save Changes"}
-                  type="submit"
-                  disabled={isSaving}
-                  icon={isSaving ? FaSpinner : undefined}
-                />
-              </div>
-            </form>
-          </div>
-
-          {/* Comments Section (Read-only) */}
-          {trade.comments && trade.comments.length > 0 && (
-            <div className={`${styles.card} ${colorMode === "light" ? styles.cardLight : styles.cardDark}`}>
-              <h2 className={styles.cardTitle}>Comments ({trade.comments.length})</h2>
-              <div className={styles.commentsList}>
-                {trade.comments.map((comment: Comment) => (
-                  <div key={comment.id} className={styles.comment}>
-                    <div className={styles.commentHeader}>
-                      {comment.owner.photoURL ? (
-                        <Image
-                          src={comment.owner.photoURL}
-                          alt={`${comment.owner.firstName} ${comment.owner.lastName}`}
-                          width={32}
-                          height={32}
-                          className={styles.commentAvatar}
-                        />
-                      ) : (
-                        <div className={styles.commentAvatarPlaceholder}>
-                          {comment.owner.firstName[0]}{comment.owner.lastName[0]}
-                        </div>
-                      )}
-                      <div className={styles.commentOwner}>
-                        <span className={styles.commentOwnerName}>
-                          {comment.owner.firstName} {comment.owner.lastName}
-                        </span>
-                        <span className={styles.commentId}>Comment ID: {comment.id}</span>
-                      </div>
+                  <div className="flex-1 min-w-0 grid grid-cols-2 gap-3">
+                    <div>
+                      <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Name</p>
+                      <p className="font-semibold truncate">{trade.trader.firstName} {trade.trader.lastName}</p>
                     </div>
-                    <p className={styles.commentContent}>
-                      Comment by {comment.owner.firstName} {comment.owner.lastName}
-                    </p>
+                    <div>
+                      <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Email</p>
+                      <p className="font-semibold truncate">{trade.trader.email}</p>
+                    </div>
                   </div>
-                ))}
+                </div>
+              </Card>
+            )}
+
+            <Card className={`app-surface ${borderColor} border`}>
+              <h2 className="text-lg font-semibold mb-4">Overview</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Created</p>
+                  <p className="font-semibold">{formatSimpleDate(trade.createdAt)}</p>
+                </div>
+                <div>
+                  <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Entry Date</p>
+                  <p className="font-semibold">{formatSimpleDate(trade.date)}</p>
+                </div>
+                <div>
+                  <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Position</p>
+                  <p className="font-semibold">{trade.position}</p>
+                </div>
+                <div>
+                  <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Margin</p>
+                  <p className="font-semibold">{trade.margin}</p>
+                </div>
+                <div>
+                  <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Size</p>
+                  <p className="font-semibold">${trade.size.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Status</p>
+                  <Badge className={getStatusBadgeClass(trade.status)}>
+                    {formatStatusLabel(trade.status)}
+                  </Badge>
+                </div>
+                <div>
+                  <p className={`text-xs uppercase tracking-wide ${mutedText}`}>Result (P/L)</p>
+                  <p className={`font-semibold ${trade.result > 0 ? "text-green-500" : trade.result < 0 ? "text-red-500" : ""}`}>
+                    ${trade.result.toLocaleString()}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            </Card>
+
+            <Card className={`app-surface ${borderColor} border`}>
+              <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={() => handleQuickAction("WIN")} disabled={isSaving} variant="primary">
+                  Set to WIN
+                </Button>
+                <Button onClick={() => handleQuickAction("LOSS")} disabled={isSaving} variant="danger">
+                  Set to LOSS
+                </Button>
+                <Button onClick={() => handleQuickAction("PENDING")} disabled={isSaving} variant="secondary">
+                  Set to PENDING
+                </Button>
+                <Button onClick={() => handleQuickAction("BREAK_EVEN")} disabled={isSaving} variant="secondary">
+                  Break Even
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right column */}
+          <div className="space-y-4 md:space-y-6">
+            <Card className={`app-surface ${borderColor} border`}>
+              <h2 className="text-lg font-semibold mb-4">Edit Trade</h2>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
+                className="space-y-6"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    type="text"
+                    label={<>Symbol<span className="text-red-500 ml-1">*</span></>}
+                    name="symbol"
+                    value={formData.symbol}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.symbol}
+                  />
+
+                  <div>
+                    <label className={labelClass}>Position</label>
+                    <select
+                      name="position"
+                      value={formData.position}
+                      onChange={handleInputChange}
+                      className={selectClass(errors.position)}
+                    >
+                      <option value="LONG">LONG</option>
+                      <option value="SHORT">SHORT</option>
+                    </select>
+                    {errors.position && <p className="mt-1 text-sm text-red-500 font-medium">{errors.position}</p>}
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Margin</label>
+                    <select
+                      name="margin"
+                      value={formData.margin}
+                      onChange={handleInputChange}
+                      className={selectClass(errors.margin)}
+                    >
+                      <option value="ISOLATED">ISOLATED</option>
+                      <option value="CROSSED">CROSSED</option>
+                    </select>
+                    {errors.margin && <p className="mt-1 text-sm text-red-500 font-medium">{errors.margin}</p>}
+                  </div>
+
+                  <Input
+                    type="datetime-local"
+                    label={<>Date<span className="text-red-500 ml-1">*</span></>}
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.date}
+                  />
+
+                  <div>
+                    <label className={labelClass}>Status</label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                      className={selectClass(errors.status)}
+                    >
+                      <option value="PENDING">PENDING</option>
+                      <option value="WIN">WIN</option>
+                      <option value="LOSS">LOSS</option>
+                      <option value="BREAK_EVEN">BREAK_EVEN</option>
+                      <option value="CANCELED">CANCELED</option>
+                    </select>
+                    {errors.status && <p className="mt-1 text-sm text-red-500 font-medium">{errors.status}</p>}
+                  </div>
+
+                  <Input
+                    type="number"
+                    label={<>Size<span className="text-red-500 ml-1">*</span></>}
+                    name="size"
+                    value={formData.size}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.size}
+                  />
+
+                  <Input
+                    type="number"
+                    label="Result (P/L)"
+                    name="result"
+                    value={formData.result}
+                    onChange={handleInputChange}
+                    error={errors.result}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Reason</label>
+                  <Textarea
+                    name="reason"
+                    value={formData.reason}
+                    onChange={handleInputChange}
+                    cols={30}
+                    rows={6}
+                    placeholder="Trade summary / reason"
+                  />
+                  {errors.reason && <p className="mt-1 text-sm text-red-500 font-medium">{errors.reason}</p>}
+                </div>
+
+                <div>
+                  <label className={labelClass}>Image URL</label>
+                  <Input
+                    type="text"
+                    name="imageURL"
+                    value={formData.imageURL}
+                    onChange={handleInputChange}
+                    placeholder="/uploads/trades/..."
+                    error={errors.imageURL}
+                  />
+                  <div className="mt-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className={`inline-block px-4 py-2 rounded-lg cursor-pointer transition-colors ${
+                        colorMode === "light"
+                          ? "bg-zinc-100 text-gray-900 hover:bg-zinc-200"
+                          : "bg-zinc-800 text-white hover:bg-zinc-700"
+                      }`}
+                    >
+                      Upload Image
+                    </label>
+                  </div>
+                  {formData.imageURL && (
+                    <div className={`mt-4 relative w-full h-64 rounded-lg overflow-hidden border ${borderColor}`}>
+                      <Image src={formData.imageURL} alt="Trade image" fill className="object-cover" />
+                    </div>
+                  )}
+                </div>
+
+                <div className={`flex justify-end gap-3 pt-4 border-t ${borderColor}`}>
+                  <Button onClick={handleReset} disabled={isSaving} variant="secondary" leftIcon={<FaUndo />}>
+                    Reset
+                  </Button>
+                  <Button type="submit" disabled={isSaving} leftIcon={isSaving ? <FaSpinner /> : undefined}>
+                    {isSaving ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </Card>
+
+            <Card className={`app-surface ${borderColor} border`}>
+              <h2 className="text-lg font-semibold mb-4">Comments ({trade.comments.length})</h2>
+
+              {trade.comments.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  {trade.comments.map((comment: Comment) => (
+                    <div
+                      key={comment.id}
+                      className={`p-3 rounded-lg border ${borderColor} ${colorMode === "light" ? "bg-zinc-50" : "bg-zinc-800/50"}`}
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        {comment.owner.photoURL ? (
+                          <Image
+                            src={comment.owner.photoURL}
+                            alt={`${comment.owner.firstName} ${comment.owner.lastName}`}
+                            width={32}
+                            height={32}
+                            className="rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${avatarFallback}`}>
+                            {comment.owner.firstName[0]}{comment.owner.lastName[0]}
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-sm">
+                            {comment.owner.firstName} {comment.owner.lastName}
+                          </p>
+                          <p className={`text-xs ${mutedText}`}>{formatSimpleDate(comment.createdAt)}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm leading-relaxed">{comment.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Textarea
+                  placeholder="Add a note about this trade..."
+                  rows={3}
+                  value={newComment}
+                  onChange={(e) => {
+                    setNewComment(e.target.value);
+                    setCommentError(null);
+                  }}
+                />
+                {commentError && <p className="text-sm text-red-500">{commentError}</p>}
+                <Button type="button" variant="secondary" disabled={isSubmittingComment} onClick={handleAddComment}>
+                  {isSubmittingComment ? "Posting..." : "Post Comment"}
+                </Button>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
 
       <ConfirmModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
-        <div className={`p-6 ${colorMode === "light" ? "bg-white" : "bg-gray-800"}`}>
+        <div className="p-6 app-surface">
           <h2 className="text-xl font-bold mb-4">Delete trade</h2>
           <p className={`mb-4 ${colorMode === "light" ? "text-gray-700" : "text-gray-300"}`}>
             Remove this trade permanently? The exchange balance will be adjusted to reverse this trade&apos;s P/L.
           </p>
           <div className="flex gap-3 justify-end">
+            <Button onClick={() => setShowDeleteModal(false)} variant="secondary">
+              Cancel
+            </Button>
             <Button
-              text="Cancel"
-              onClick={() => setShowDeleteModal(false)}
-              variant="secondary"
-            />
-            <Button
-              text={isDeleting ? "Deleting..." : "Delete trade"}
               onClick={handleDelete}
               disabled={isDeleting}
               variant="danger"
-              icon={isDeleting ? FaSpinner : FaTrash}
-            />
+              leftIcon={isDeleting ? <FaSpinner /> : <FaTrash />}
+            >
+              {isDeleting ? "Deleting..." : "Delete trade"}
+            </Button>
           </div>
         </div>
       </ConfirmModal>

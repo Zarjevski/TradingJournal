@@ -65,8 +65,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 flex items-center justify-between ${
             colorMode === "light"
-              ? "bg-white border-gray-300 text-gray-900 hover:border-gray-400"
-              : "bg-gray-800 border-gray-600 text-white hover:border-gray-500"
+              ? "bg-white border-zinc-300 text-gray-900 hover:border-zinc-400"
+              : "bg-zinc-800 border-zinc-600 text-white hover:border-zinc-500"
           }`}
         >
           <span className={selectedOption ? "" : "text-gray-400"}>
@@ -87,12 +87,12 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className={`absolute z-50 w-full mt-2 rounded-lg border-2 shadow-xl ${
                 colorMode === "light"
-                  ? "bg-white border-gray-200"
-                  : "bg-gray-800 border-gray-700"
+                  ? "bg-white border-zinc-200"
+                  : "bg-zinc-800 border-zinc-700"
               }`}
             >
               {/* Search Input */}
-              <div className={`p-2 border-b ${colorMode === "light" ? "border-gray-200" : "border-gray-600"}`}>
+              <div className={`p-2 border-b ${colorMode === "light" ? "border-zinc-200" : "border-zinc-600"}`}>
                 <div className="relative">
                   <FaSearch
                     className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
@@ -106,8 +106,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                     placeholder="Search..."
                     className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-all ${
                       colorMode === "light"
-                        ? "bg-gray-50 border-gray-300 text-gray-900 focus:border-blue-500"
-                        : "bg-gray-700 border-gray-600 text-white focus:border-purple-500"
+                        ? "bg-zinc-50 border-zinc-300 text-gray-900 focus:border-zinc-500"
+                        : "bg-zinc-700 border-zinc-600 text-white focus:border-zinc-400"
                     }`}
                     autoFocus
                   />
@@ -137,11 +137,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       className={`w-full px-4 py-2 text-left transition-colors ${
                         value === option.value
                           ? colorMode === "light"
-                            ? "bg-blue-50 text-blue-700"
-                            : "bg-purple-900/30 text-purple-300"
+                            ? "bg-zinc-100 text-zinc-900"
+                            : "bg-zinc-700/50 text-zinc-200"
                           : colorMode === "light"
-                          ? "hover:bg-gray-50 text-gray-900"
-                          : "hover:bg-gray-700 text-gray-300"
+                          ? "hover:bg-zinc-50 text-gray-900"
+                          : "hover:bg-zinc-700 text-gray-300"
                       }`}
                     >
                       <div className="font-medium">{option.value}</div>

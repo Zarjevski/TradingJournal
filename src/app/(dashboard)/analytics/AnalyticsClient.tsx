@@ -34,7 +34,10 @@ import Badge from "@/components/ui/Badge";
 import Alert from "@/components/ui/Alert";
 import Spinner from "@/components/ui/Spinner";
 import Tabs from "@/components/ui/Tabs";
+import PageHeader from "@/components/ui/PageHeader";
 import { useColorMode } from "@/context/ColorModeContext";
+import { getStatusBadgeClass } from "@/lib/tradeStatus";
+import { formatShortDate } from "@/lib/dateFormat";
 
 // Register Chart.js components
 ChartJS.register(
@@ -194,17 +197,14 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
     return {
       labels: data.cumulativePnLSeries.map((p) => {
         const date = new Date(p.date);
-        return date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        });
+        return formatShortDate(date);
       }),
       datasets: [
         {
           label: "Cumulative P&L",
           data: data.cumulativePnLSeries.map((p) => p.value),
-          borderColor: colorMode === "light" ? "#2563eb" : "#7c3aed",       // blue in light, purple in dark
-          backgroundColor: colorMode === "light" ? "#2563eb20" : "#7c3aed20",
+          borderColor: colorMode === "light" ? "#27272a" : "#a1a1aa",
+          backgroundColor: colorMode === "light" ? "#27272a20" : "#a1a1aa20",
           fill: true,
           tension: 0.4,
         },
@@ -218,10 +218,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
     return {
       labels: data.drawdownSeries.map((p) => {
         const date = new Date(p.date);
-        return date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        });
+        return formatShortDate(date);
       }),
       datasets: [
         {
@@ -252,8 +249,8 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           backgroundColor: [
             "#22c55e",
             "#ef4444",
-            colorMode === "light" ? "#3b82f6" : "#7c3aed",
-            "#6b7280",
+            "#71717a",
+            "#52525b",
           ],
         },
       ],
@@ -302,7 +299,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           title: "Total Trades",
           value: data.kpis.totalTrades.toLocaleString(),
           icon: FaChartLine,
-          color: "blue",
+          color: "zinc",
         },
         {
           title: "Win Rate",
@@ -320,7 +317,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           title: "Avg Trade",
           value: `$${data.kpis.avgTrade.toFixed(2)}`,
           icon: FaArrowUp,
-          color: "purple",
+          color: "zinc",
         },
         {
           title: "Profit Factor",
@@ -343,23 +340,13 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
   const borderColor = colorMode === "light" ? "border-gray-200" : "border-gray-700";
   const [filtersOpen, setFiltersOpen] = useState(true);
 
-  const getStatusColor = (status: string): string => {
-    const s = status.toUpperCase();
-    if (s === "WIN") return "bg-green-500";
-    if (s === "LOSS") return "bg-red-500";
-    if (s === "BREAK_EVEN")
-      return colorMode === "light" ? "bg-blue-500" : "bg-purple-500";
-    if (s === "CANCELED") return "bg-gray-500";
-    return "bg-gray-500";
-  };
-
   const getColorClasses = (color: string) => {
     const colorMap: Record<string, { bg: string; text: string }> = {
-      blue: { 
-        bg: colorMode === "light" ? "bg-blue-50" : "bg-blue-900", 
-        text: "text-blue-500" 
+      zinc: {
+        bg: colorMode === "light" ? "bg-zinc-100" : "bg-zinc-800",
+        text: colorMode === "light" ? "text-zinc-700" : "text-zinc-300"
       },
-      yellow: { 
+      yellow: {
         bg: colorMode === "light" ? "bg-yellow-50" : "bg-yellow-900", 
         text: "text-yellow-500" 
       },
@@ -371,16 +358,12 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
         bg: colorMode === "light" ? "bg-red-50" : "bg-red-900", 
         text: "text-red-500" 
       },
-      purple: { 
-        bg: colorMode === "light" ? "bg-purple-50" : "bg-purple-900", 
-        text: "text-purple-500" 
-      },
-      teal: { 
-        bg: colorMode === "light" ? "bg-teal-50" : "bg-teal-900", 
-        text: "text-teal-500" 
+      teal: {
+        bg: colorMode === "light" ? "bg-teal-50" : "bg-teal-900",
+        text: "text-teal-500"
       },
     };
-    return colorMap[color] || colorMap.blue;
+    return colorMap[color] || colorMap.zinc;
   };
 
   const segmentationTabs = data ? [
@@ -392,7 +375,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           <Table className={`min-w-full divide-y ${
             colorMode === "light" ? "divide-gray-200" : "divide-gray-700"
           }`}>
-            <Thead className={colorMode === "light" ? "bg-gray-50" : "bg-gray-800"}>
+            <Thead className={colorMode === "light" ? "bg-zinc-50" : "bg-zinc-800"}>
               <Tr>
                 <Th>Exchange</Th>
                 <Th>Trades</Th>
@@ -430,7 +413,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           <Table className={`min-w-full divide-y ${
             colorMode === "light" ? "divide-gray-200" : "divide-gray-700"
           }`}>
-            <Thead className={colorMode === "light" ? "bg-gray-50" : "bg-gray-800"}>
+            <Thead className={colorMode === "light" ? "bg-zinc-50" : "bg-zinc-800"}>
               <Tr>
                 <Th>Symbol</Th>
                 <Th>Trades</Th>
@@ -468,7 +451,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           <Table className={`min-w-full divide-y ${
             colorMode === "light" ? "divide-gray-200" : "divide-gray-700"
           }`}>
-            <Thead className={colorMode === "light" ? "bg-gray-50" : "bg-gray-800"}>
+            <Thead className={colorMode === "light" ? "bg-zinc-50" : "bg-zinc-800"}>
               <Tr>
                 <Th>Direction</Th>
                 <Th>Trades</Th>
@@ -506,7 +489,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           <Table className={`min-w-full divide-y ${
             colorMode === "light" ? "divide-gray-200" : "divide-gray-700"
           }`}>
-            <Thead className={colorMode === "light" ? "bg-gray-50" : "bg-gray-800"}>
+            <Thead className={colorMode === "light" ? "bg-zinc-50" : "bg-zinc-800"}>
               <Tr>
                 <Th>Status</Th>
                 <Th>Trades</Th>
@@ -519,7 +502,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
               {data.byStatus.map((row, index) => (
                 <Tr key={index}>
                   <Td>
-                    <Badge className={getStatusColor(row.status || "")}>
+                    <Badge className={getStatusBadgeClass(row.status || "")}>
                       {row.status}
                     </Badge>
                   </Td>
@@ -542,20 +525,11 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
 
   return (
     <div className={`min-h-screen w-full ${bgColor} ${textColor}`}>
-      <div className="w-full h-full p-2 md:p-4 space-y-4">
-        {/* Header */}
-        <div className="mb-3 md:mb-4">
-          <h1 className="text-2xl xs:text-3xl md:text-4xl font-bold mb-1 md:mb-2">
-            Analytics Dashboard
-          </h1>
-          <p
-            className={`text-xs xs:text-sm ${
-              colorMode === "light" ? "text-gray-600" : "text-gray-400"
-            }`}
-          >
-            Historical performance analysis and insights
-          </p>
-        </div>
+      <div className="w-full h-full p-4 sm:p-6 lg:p-8 space-y-4 md:space-y-6 max-w-[1600px] mx-auto">
+        <PageHeader
+          title="Analytics Dashboard"
+          subtitle="Historical performance analysis and insights"
+        />
 
         {/* Filters */}
         <Card className={`${cardBg} ${borderColor} border`}>
@@ -565,7 +539,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
               <button
                 type="button"
                 onClick={() => setFiltersOpen((open) => !open)}
-                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
               >
                 {filtersOpen ? "Hide" : "Show"}
                 <span className="inline-flex items-center">
@@ -682,7 +656,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
               <Card key={i} className={`${cardBg} ${borderColor} border`}>
                 <div className="p-4">
                   <div className={`h-16 rounded animate-pulse ${
-                    colorMode === "light" ? "bg-gray-200" : "bg-gray-700"
+                    colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
                   }`}></div>
                 </div>
               </Card>
@@ -733,14 +707,14 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
             <Card className={`${cardBg} ${borderColor} border`}>
               <div className="p-4">
                 <div className={`h-[300px] rounded animate-pulse ${
-                  colorMode === "light" ? "bg-gray-200" : "bg-gray-700"
+                  colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
                 }`}></div>
               </div>
             </Card>
             <Card className={`${cardBg} ${borderColor} border`}>
               <div className="p-4">
                 <div className={`h-[300px] rounded animate-pulse ${
-                  colorMode === "light" ? "bg-gray-200" : "bg-gray-700"
+                  colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
                 }`}></div>
               </div>
             </Card>
@@ -775,7 +749,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
           <Card className={`${cardBg} ${borderColor} border`}>
             <div className="p-4">
               <div className={`h-[300px] rounded animate-pulse ${
-                colorMode === "light" ? "bg-gray-200" : "bg-gray-700"
+                colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
               }`}></div>
             </div>
           </Card>
@@ -815,7 +789,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
               <div className="space-y-2">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className={`h-4 rounded animate-pulse ${
-                    colorMode === "light" ? "bg-gray-200" : "bg-gray-700"
+                    colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
                   }`}></div>
                 ))}
               </div>
@@ -839,7 +813,7 @@ const AnalyticsClient: React.FC<AnalyticsClientProps> = ({ exchanges }) => {
               <div className="space-y-2">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className={`h-4 rounded animate-pulse ${
-                    colorMode === "light" ? "bg-gray-200" : "bg-gray-700"
+                    colorMode === "light" ? "bg-zinc-200" : "bg-zinc-700"
                   }`}></div>
                 ))}
               </div>

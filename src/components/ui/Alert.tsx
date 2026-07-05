@@ -21,8 +21,8 @@ const Alert: React.FC<AlertProps> = ({
   
   const variantClasses = {
     info: colorMode === "light"
-      ? "bg-blue-50 border-blue-200 text-blue-800"
-      : "bg-purple-900/20 border-purple-700/50 text-purple-300",
+      ? "bg-zinc-100 border-zinc-200 text-zinc-800"
+      : "bg-zinc-700/30 border-zinc-600/50 text-zinc-300",
     success: colorMode === "light"
       ? "bg-green-50 border-green-200 text-green-800"
       : "bg-green-900/20 border-green-700/50 text-green-300",

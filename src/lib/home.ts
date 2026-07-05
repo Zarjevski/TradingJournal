@@ -25,8 +25,6 @@ export interface HomeData {
   openTradesCount: number;
   todayPnL: number;
   totalBalance: number;
-  ruleOfTheDay: string | null;
-  disciplineWarnings: string[];
 }
 
 export async function getHomeData(): Promise<HomeData | null> {
@@ -125,12 +123,6 @@ export async function getHomeData(): Promise<HomeData | null> {
       result: trade.result,
     }));
 
-    // Get rule of the day (deterministic based on day of year)
-    const ruleOfTheDay = getRuleOfTheDay(rules);
-
-    // Get discipline warnings
-    const disciplineWarnings = getDisciplineWarnings(todayPnL, openTradesCount);
-
     return {
       exchanges,
       rules,
@@ -139,59 +131,9 @@ export async function getHomeData(): Promise<HomeData | null> {
       openTradesCount,
       todayPnL,
       totalBalance,
-      ruleOfTheDay,
-      disciplineWarnings,
     };
   } catch (error) {
     console.error("Error fetching home data:", error);
     return null;
   }
-}
-
-// Get rule of the day (deterministic per day)
-function getRuleOfTheDay(
-  rules: Array<{ id: string; content: string }>
-): string | null {
-  if (rules.length === 0) {
-    return null;
-  }
-
-  // Use today's date as seed for deterministic selection
-  const today = new Date();
-  const dayOfYear = Math.floor(
-    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
-      86400000
-  );
-  const index = dayOfYear % rules.length;
-  return rules[index].content;
-}
-
-// Get discipline warnings based on thresholds
-function getDisciplineWarnings(
-  todayPnL: number,
-  openTradesCount: number
-): string[] {
-  const warnings: string[] = [];
-  const dailyRiskLimit = -1000;
-  const maxOpenTrades = 10;
-
-  if (todayPnL < dailyRiskLimit) {
-    warnings.push(
-      `Caution: You are near your daily risk limit (P&L: $${todayPnL.toLocaleString()}).`
-    );
-  }
-
-  if (openTradesCount > maxOpenTrades) {
-    warnings.push(
-      `Warning: You have ${openTradesCount} open trades. Consider managing your positions.`
-    );
-  }
-
-  if (todayPnL < dailyRiskLimit * 0.7 && todayPnL < 0) {
-    warnings.push(
-      `Caution: Daily P&L is negative ($${todayPnL.toLocaleString()}). Trade carefully.`
-    );
-  }
-
-  return warnings;
 }

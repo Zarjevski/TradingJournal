@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { matchesImageSignature } from "@/lib/fileSignature";
 
 export async function POST(request: Request) {
   try {
@@ -53,6 +54,13 @@ export async function POST(request: Request) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    if (!matchesImageSignature(buffer, file.type)) {
+      return NextResponse.json(
+        { error: "File content does not match a valid image format." },
+        { status: 400 }
+      );
+    }
 
     // Generate unique filename
     const timestamp = Date.now();

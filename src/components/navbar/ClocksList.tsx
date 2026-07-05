@@ -196,13 +196,13 @@ const ClocksList = () => {
             className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[90px] animate-pulse"
           >
             <div className={`h-3 w-12 rounded ${
-              colorMode === "light" ? "bg-gray-300" : "bg-gray-600"
+              colorMode === "light" ? "bg-zinc-300" : "bg-zinc-600"
             }`}></div>
             <div className={`h-4 w-16 rounded ${
-              colorMode === "light" ? "bg-gray-300" : "bg-gray-600"
+              colorMode === "light" ? "bg-zinc-300" : "bg-zinc-600"
             }`}></div>
             <div className={`h-4 w-14 rounded ${
-              colorMode === "light" ? "bg-gray-300" : "bg-gray-600"
+              colorMode === "light" ? "bg-zinc-300" : "bg-zinc-600"
             }`}></div>
           </div>
         ))}

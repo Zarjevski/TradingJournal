@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import getCurrentUser from "@/app/actions/getCurrentUser";
 import {
   isAllowedMarket,
   isAllowedTf,
@@ -19,6 +20,11 @@ function parseQueryInt(value: string | null): number | null {
 
 export async function GET(request: NextRequest) {
   try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const market = (searchParams.get("market") ?? "crypto").toLowerCase();
     const symbol = searchParams.get("symbol")?.trim() ?? "";

@@ -20,7 +20,7 @@ const Page = () => {
 
   useEffect(() => {
     if (session?.status === "authenticated") {
-      router.push("/");
+      router.push("/dashboard");
     }
   }, [session?.status, router]);
 
@@ -31,7 +31,7 @@ const Page = () => {
       <Link
         href="/auth/login"
         className={`absolute top-4 left-4 text-sm font-medium hover:underline ${
-          displayColorMode === "light" ? "text-blue-600" : "text-purple-400"
+          displayColorMode === "light" ? "text-zinc-600" : "text-zinc-400"
         }`}
       >
         ← Back to login
